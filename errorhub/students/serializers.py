@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Student
+from .models import Student, InternshipApplication
 from managements.models import Internship, InternshipDetail
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,3 +69,19 @@ class InternshipSerializer(serializers.ModelSerializer):
         model = Internship
         fields = '__all__' 
         read_only_fields = ('student_id', 'department', 'year')
+
+class InternshipApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternshipApplication
+        fields = ['internship', 'resume', 'description', 'status', 'applied_at']
+        read_only_fields = ['status', 'applied_at']
+    
+    def validate(self, attrs):
+        student = Student.objects.get(user=self.context['request'].user)
+        attrs['student'] = student
+        
+        # Check if student has already applied
+        if InternshipApplication.objects.filter(student=student, internship=attrs['internship']).exists():
+            raise serializers.ValidationError("You have already applied for this internship.")
+        
+        return attrs

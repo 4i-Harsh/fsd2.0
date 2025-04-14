@@ -6,9 +6,10 @@ from .serializers import (
     StudentRegistrationSerializer, 
     StudentLoginSerializer, 
     StudentProfileSerializer,
-    InternshipSerializer
+    InternshipSerializer,
+    InternshipApplicationSerializer
 )
-from .models import Student
+from .models import Student, InternshipApplication
 from managements.models import Internship
 
 # Create your views here.
@@ -64,3 +65,26 @@ class InternshipListView(generics.ListAPIView):
     
     def get_queryset(self):
         return Internship.objects.all().order_by('-created_at')
+
+class InternshipApplicationView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipApplicationSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            application = serializer.save()
+            return Response({
+                "message": "Application submitted successfully",
+                "application_id": application.id,
+                "status": application.status
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class StudentApplicationsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipApplicationSerializer
+    
+    def get_queryset(self):
+        student = Student.objects.get(user=self.request.user)
+        return InternshipApplication.objects.filter(student=student).order_by('-applied_at')

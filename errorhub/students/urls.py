@@ -3,12 +3,16 @@ from .views import (
     StudentRegistrationView,
     StudentLoginView,
     StudentProfileView,
-    InternshipListView
+    InternshipListView,
+    InternshipApplicationView,
+    StudentApplicationsView
 )
 
 urlpatterns = [
     path('register/', StudentRegistrationView.as_view(), name='student-register'),
     path('login/', StudentLoginView.as_view(), name='student-login'),
     path('profile/', StudentProfileView.as_view(), name='student-profile'),
-    path('view_internships/', InternshipListView.as_view(), name='view-internships'),
+    path('internships/', InternshipListView.as_view(), name='internship-list'),
+    path('internships/apply/', InternshipApplicationView.as_view(), name='internship-apply'),
+    path('applications/', StudentApplicationsView.as_view(), name='student-applications'),
 ] 

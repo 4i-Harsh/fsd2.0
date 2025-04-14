@@ -17,3 +17,23 @@ class Student(models.Model):
     
     def __str__(self):
         return self.user.email if self.user else self.student_id
+
+class InternshipApplication(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('shortlisted', 'Shortlisted'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='applications')
+    internship = models.ForeignKey('managements.Internship', on_delete=models.CASCADE, related_name='applications')
+    resume = models.FileField(upload_to='resumes/')
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    applied_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('student', 'internship')
+    
+    def __str__(self):
+        return f"{self.student.student_id} - {self.internship.title}"
