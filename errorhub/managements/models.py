@@ -7,3 +7,30 @@ class Management(models.Model):
     
     def __str__(self):
         return self.user.username if self.user else "No User"
+
+class Internship(models.Model):
+    title = models.CharField(max_length=200)
+    company_name = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    location = models.CharField(max_length=200, null=True, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    application_deadline = models.DateField()
+    created_by = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='internships')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.title} at {self.company_name}"
+
+class InternshipDetail(models.Model):
+    internship = models.OneToOneField(Internship, on_delete=models.CASCADE, related_name='details')
+    requirements = models.TextField(null=True, blank=True)
+    responsibilities = models.TextField(null=True, blank=True)
+    benefits = models.TextField(null=True, blank=True)
+    stipend = models.CharField(max_length=100, blank=True, null=True)
+    duration = models.CharField(max_length=100, null=True, blank=True)
+    skills_required = models.TextField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Details for {self.internship.title}"
