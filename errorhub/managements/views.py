@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import ManagementRegistrationSerializer, ManagementLoginSerializer
+from teachers.models import TeacherProfileVerification
+from teachers.serializers import TeacherProfileVerificationSerializer
 
 # Create your views here.
 
@@ -30,3 +32,38 @@ class ManagementLoginView(generics.GenericAPIView):
         if serializer.is_valid():
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AllVerificationsListView(generics.ListAPIView):
+    serializer_class = TeacherProfileVerificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if not hasattr(self.request.user, 'management_profile'):
+            return TeacherProfileVerification.objects.none()
+        return TeacherProfileVerification.objects.all().order_by('-verification_date')
+
+class PendingVerificationsListView(generics.ListAPIView):
+    serializer_class = TeacherProfileVerificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if not hasattr(self.request.user, 'management_profile'):
+            return TeacherProfileVerification.objects.none()
+        return TeacherProfileVerification.objects.filter(status='pending')
+
+class TeacherProfileVerificationView(generics.RetrieveUpdateAPIView):
+    serializer_class = TeacherProfileVerificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        verification_id = self.kwargs.get('pk')
+        return TeacherProfileVerification.objects.get(id=verification_id)
+
+    def update(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'management_profile'):
+            return Response(
+                {"detail": "Only management can verify profiles"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().update(request, *args, **kwargs)
