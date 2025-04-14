@@ -26,7 +26,43 @@ const LoginPage = () => {
       let payload = {};
 
       if (isLogin) {
-        // Handle login logic here
+        let loginEndpoint = '';
+        switch (activeTab) {
+          case 'student':
+            loginEndpoint = 'http://127.0.0.1:8000/api/students/login/';
+            break;
+          case 'teacher':
+            loginEndpoint = 'http://127.0.0.1:8000/api/teachers/login/';
+            break;
+          case 'management':
+            loginEndpoint = 'http://127.0.0.1:8000/api/managements/login/';
+            break;
+        }
+
+        const response = await fetch(loginEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Login failed');
+        }
+
+        // Store the token in localStorage
+        localStorage.setItem('token', data.token);
+        
+        // Navigate based on user type
+        if (activeTab === 'student') {
+          navigate('/student-dashboard');
+        }
         return;
       }
 
@@ -289,4 +325,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;
