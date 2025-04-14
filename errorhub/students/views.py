@@ -3,6 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import StudentRegistrationSerializer, StudentLoginSerializer, StudentProfileSerializer
+from .models import Student
 
 # Create your views here.
 
@@ -16,7 +17,7 @@ class StudentRegistrationView(generics.CreateAPIView):
             student = serializer.save()
             return Response({
                 "message": "Student registered successfully",
-                "email": student.email,
+                "email": student.user.email,
                 "student_id": student.student_id
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -36,7 +37,7 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileSerializer
 
     def get_object(self):
-        return self.request.user
+        return Student.objects.get(user=self.request.user)
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()

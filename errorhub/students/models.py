@@ -1,9 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-class Student(AbstractUser):
-    email = models.EmailField(_('email address'), unique=True)
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile', null=True, blank=True)
     student_id = models.CharField(max_length=20, unique=True)
     department = models.CharField(max_length=100)
     year = models.IntegerField()
@@ -15,8 +15,5 @@ class Student(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='student_profiles/', null=True, blank=True)
     
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'student_id', 'department', 'year']
-    
     def __str__(self):
-        return self.email
+        return self.user.email if self.user else self.student_id
