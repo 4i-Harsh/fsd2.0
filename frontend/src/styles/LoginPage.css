@@ -92,4 +92,13 @@
 
 .submit-button:hover {
   background: #2980b9;
+}
+
+.error-message {
+  color: #e74c3c;
+  background: #fadbd8;
+  padding: 0.8rem;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 1rem;
 } 
