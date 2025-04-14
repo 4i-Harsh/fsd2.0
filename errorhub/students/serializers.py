@@ -53,8 +53,11 @@ class StudentLoginSerializer(TokenObtainPairSerializer):
 class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ('student_id', 'department', 'year', 
-                 'cgpa', 'phone_number', 'address', 'date_of_birth', 'profile_picture')
+        fields = [
+            'student_id', 'department', 'year',
+            'full_name', 'roll_no', 'email', 'mobile_no',
+            'dept_of_study', 'resume', 'linkedin_url', 'profile_pic'
+        ]
         read_only_fields = ('student_id', 'department', 'year')
 
 class InternshipDetailSerializer(serializers.ModelSerializer):
