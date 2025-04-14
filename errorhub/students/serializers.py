@@ -54,4 +54,4 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         model = Student
         fields = ('student_id', 'department', 'year', 
                  'cgpa', 'phone_number', 'address', 'date_of_birth', 'profile_picture')
-        read_only_fields = ('student_id', 'department', 'year') 
+        read_only_fields = ('student_id', 'department', 'year')
