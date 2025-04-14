@@ -2,9 +2,15 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import ManagementRegistrationSerializer, ManagementLoginSerializer
+from .serializers import (
+    ManagementRegistrationSerializer, 
+    ManagementLoginSerializer,
+    InternshipSerializer,
+    InternshipDetailSerializer
+)
 from teachers.models import TeacherProfileVerification
 from teachers.serializers import TeacherProfileVerificationSerializer
+from .models import Internship, InternshipDetail
 
 # Create your views here.
 
@@ -67,3 +73,34 @@ class TeacherProfileVerificationView(generics.RetrieveUpdateAPIView):
             )
         
         return super().update(request, *args, **kwargs)
+
+class InternshipCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipSerializer
+
+    def perform_create(self, serializer):
+        if not hasattr(self.request.user, 'management_profile'):
+            raise serializers.ValidationError("Only management can create internships")
+        serializer.save()
+
+class InternshipListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipSerializer
+    
+    def get_queryset(self):
+        return Internship.objects.all().order_by('-created_at')
+
+class InternshipDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipSerializer
+    queryset = Internship.objects.all()
+
+    def perform_update(self, serializer):
+        if not hasattr(self.request.user, 'management_profile'):
+            raise serializers.ValidationError("Only management can update internships")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if not hasattr(self.request.user, 'management_profile'):
+            raise serializers.ValidationError("Only management can delete internships")
+        instance.delete()
