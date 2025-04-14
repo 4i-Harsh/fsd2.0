@@ -45,7 +45,7 @@ const LoginPage = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            username: formData.username,
+            username: formData.username, // This will be email for students
             password: formData.password,
           }),
         });
@@ -53,11 +53,12 @@ const LoginPage = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.detail || 'Login failed');
+          throw new Error(data.detail || data.error || 'Login failed');
         }
 
-        // Store the token in localStorage
-        localStorage.setItem('token', data.token);
+        // Store the tokens in localStorage
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
         
         // Navigate based on user type
         if (activeTab === 'student') {
@@ -70,6 +71,18 @@ const LoginPage = () => {
       switch (activeTab) {
         case 'student':
           endpoint = 'http://127.0.0.1:8000/api/students/register/';
+          // Make sure all fields are filled and properly formatted
+          if (!formData.email || !formData.username || !formData.password || 
+              !formData.password2 || !formData.student_id || 
+              !formData.department || !formData.year) {
+            throw new Error('All fields are required');
+          }
+          
+          // Validate password match
+          if (formData.password !== formData.password2) {
+            throw new Error('Passwords do not match');
+          }
+
           payload = {
             user: {
               username: formData.username,
@@ -78,7 +91,7 @@ const LoginPage = () => {
             },
             student_id: formData.student_id,
             department: formData.department,
-            year: parseInt(formData.year),
+            year: parseInt(formData.year, 10),
             password2: formData.password2
           };
           break;
@@ -101,6 +114,9 @@ const LoginPage = () => {
           break;
       }
 
+      // Add this before sending the request
+      console.log('Sending registration payload:', payload);
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -110,13 +126,26 @@ const LoginPage = () => {
         body: JSON.stringify(payload)
       });
 
+      // Add this after getting the response
       const data = await response.json();
+      console.log('Registration response:', data);
 
       if (!response.ok) {
-        // Handle validation errors
-        if (data.errors) {
-          const errorMessages = Object.values(data.errors).flat();
-          throw new Error(errorMessages.join(', '));
+        // Log the full error response
+        console.log('Registration error response:', data);
+        
+        // Handle different types of error responses
+        if (data.user) {
+          throw new Error(Object.values(data.user).flat().join(', '));
+        }
+        if (data.non_field_errors) {
+          throw new Error(data.non_field_errors.join(', '));
+        }
+        if (typeof data === 'object') {
+          const errors = Object.entries(data)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ');
+          throw new Error(errors);
         }
         throw new Error(data.detail || 'Registration failed');
       }
@@ -127,27 +156,29 @@ const LoginPage = () => {
       alert('Registration successful! Please login.');
 
     } catch (err) {
-      setError(err.message);
+      console.error('Registration Error:', err);
+      setError(err.message || 'Registration failed. Please check all fields.');
     }
   };
 
   const renderForm = () => {
     const commonFields = (
       <>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username || ''}
-          onChange={handleInputChange}
-          required
-        />
-        {!isLogin && activeTab === 'student' && (
+        {activeTab === 'student' && isLogin ? (
           <input
             type="email"
-            name="email"
+            name="username"  // Keep name as username for API compatibility
             placeholder="Email"
-            value={formData.email || ''}
+            value={formData.username || ''}
+            onChange={handleInputChange}
+            required
+          />
+        ) : (
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username || ''}
             onChange={handleInputChange}
             required
           />
@@ -175,8 +206,24 @@ const LoginPage = () => {
 
     const studentFields = (
       <>
-        {!isLogin && (
+        {!isLogin ? (
           <>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email || ''}
+              onChange={handleInputChange}
+              required
+            />
             <input
               type="text"
               name="student_id"
@@ -202,8 +249,34 @@ const LoginPage = () => {
               required
             />
           </>
+        ) : (
+          <input
+            type="email"
+            name="username"
+            placeholder="Email"
+            value={formData.username || ''}
+            onChange={handleInputChange}
+            required
+          />
         )}
-        {commonFields}
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password || ''}
+          onChange={handleInputChange}
+          required
+        />
+        {!isLogin && (
+          <input
+            type="password"
+            name="password2"
+            placeholder="Confirm Password"
+            value={formData.password2 || ''}
+            onChange={handleInputChange}
+            required
+          />
+        )}
       </>
     );
 
