@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Student
+from managements.models import Internship, InternshipDetail
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -54,4 +55,16 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         model = Student
         fields = ('student_id', 'department', 'year', 
                  'cgpa', 'phone_number', 'address', 'date_of_birth', 'profile_picture')
-        read_only_fields = ('student_id', 'department', 'year') 
+        read_only_fields = ('student_id', 'department', 'year')
+
+class InternshipDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternshipDetail
+        fields = '__all__'
+
+class InternshipSerializer(serializers.ModelSerializer):
+    details = InternshipDetailSerializer(read_only=True)
+    
+    class Meta:
+        model = Internship
+        fields = '__all__' 

@@ -2,8 +2,14 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import StudentRegistrationSerializer, StudentLoginSerializer, StudentProfileSerializer
+from .serializers import (
+    StudentRegistrationSerializer, 
+    StudentLoginSerializer, 
+    StudentProfileSerializer,
+    InternshipSerializer
+)
 from .models import Student
+from managements.models import Internship
 
 # Create your views here.
 
@@ -49,8 +55,12 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({
-                "message": "Profile updated successfully",
-                "data": serializer.data
-            })
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class InternshipListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = InternshipSerializer
+    
+    def get_queryset(self):
+        return Internship.objects.all().order_by('-created_at')
