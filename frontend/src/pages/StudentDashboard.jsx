@@ -1,11 +1,99 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/StudentDashboard.css';
 
 const StudentDashboard = () => {
-  return (
-    <div>StudentDashboard
-    login is succesful 
-    </div>
-  )
-}
+  const [studentData, setStudentData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const token = localStorage.getItem('access');
 
-export default StudentDashboard
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch student data');
+        }
+
+        const data = await response.json();
+        setStudentData(data);
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+        setError('Failed to load student data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudentData();
+  }, [token]);
+
+  const handleEditProfile = () => {
+    navigate('/student-profile');
+  };
+
+  if (loading) {
+    return <div className="dashboard-loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="dashboard-error">{error}</div>;
+  }
+
+  return (
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1>Welcome, {studentData?.full_name || 'Student'}</h1>
+      </div>
+      
+      <div className="dashboard-content">
+        <div className="profile-section">
+          <h2>Your Profile</h2>
+          <div className="profile-info">
+            <div className="info-group">
+              <label>Full Name:</label>
+              <span>{studentData?.full_name}</span>
+            </div>
+            <div className="info-group">
+              <label>Roll Number:</label>
+              <span>{studentData?.roll_no}</span>
+            </div>
+            <div className="info-group">
+              <label>Email:</label>
+              <span>{studentData?.email}</span>
+            </div>
+            <div className="info-group">
+              <label>Mobile Number:</label>
+              <span>{studentData?.mobile_no}</span>
+            </div>
+            <div className="info-group">
+              <label>Department:</label>
+              <span>{studentData?.dept_of_study}</span>
+            </div>
+            {studentData?.linkedin_url && (
+              <div className="info-group">
+                <label>LinkedIn:</label>
+                <a href={studentData.linkedin_url} target="_blank" rel="noopener noreferrer">
+                  View Profile
+                </a>
+              </div>
+            )}
+          </div>
+          <button className="edit-profile-btn" onClick={handleEditProfile}>
+            Edit Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StudentDashboard;

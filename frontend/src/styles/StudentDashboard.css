@@ -1,0 +1,111 @@
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
+}
+
+.dashboard-header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.dashboard-content {
+  display: grid;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section h2 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.profile-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.info-group {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-group:last-child {
+  border-bottom: none;
+}
+
+.info-group label {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.info-group span, .info-group a {
+  color: #2c3e50;
+}
+
+.info-group a {
+  text-decoration: none;
+  color: #3498db;
+}
+
+.info-group a:hover {
+  text-decoration: underline;
+}
+
+.edit-profile-btn {
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.edit-profile-btn:hover {
+  background: #2980b9;
+}
+
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #2c3e50;
+}
+
+.dashboard-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #e74c3c;
+  text-align: center;
+  padding: 2rem;
+} 
