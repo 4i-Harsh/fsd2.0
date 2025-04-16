@@ -9,14 +9,21 @@ import TeacherLogin from './components/TeacherLogin';
 import TeacherProfile from './components/TeacherProfile';
 import PendingVerification from './components/PendingVerification';
 import TeacherDashboard from './components/TeacherDashboard';
+import ManagementLogin from './components/ManagementLogin';
+import ManagementDashboard from './components/ManagementDashboard';
 import './App.css';
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/teacher/login" element={<TeacherLogin />} />
+        <Route path="/management/login" element={<ManagementLogin />} />
+
+        {/* Student Routes */}
         <Route 
           path="/student-profile" 
           element={
@@ -33,7 +40,8 @@ const App = () => {
             </PrivateRoute>
           } 
         />
-        <Route path="/teacher/login" element={<TeacherLogin />} />
+
+        {/* Teacher Routes */}
         <Route 
           path="/teacher/profile" 
           element={
@@ -58,6 +66,18 @@ const App = () => {
             </PrivateRoute>
           } 
         />
+
+        {/* Management Routes */}
+        <Route 
+          path="/management/dashboard/*" 
+          element={
+            <PrivateRoute>
+              <ManagementDashboard />
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -82,7 +82,7 @@ const LoginPage = () => {
         } else if (activeTab === 'student') {
           navigate('/student-dashboard');
         } else if (activeTab === 'management') {
-          navigate('/management-dashboard');
+          navigate('/management/dashboard');
         }
         return;
       }
