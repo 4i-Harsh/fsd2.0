@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
 
@@ -8,6 +8,11 @@ const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({});
   const [error, setError] = useState('');
+
+  // Animation effect for particles and glow
+  useEffect(() => {
+    // This empty useEffect will trigger initial animations
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -165,49 +170,18 @@ const LoginPage = () => {
     const commonFields = (
       <>
         {activeTab === 'student' && isLogin ? (
-          <input
-            type="email"
-            name="username"  // Keep name as username for API compatibility
-            placeholder="Email"
-            value={formData.username || ''}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="form-group">
+            <input
+              type="email"
+              name="username"  // Keep name as username for API compatibility
+              placeholder="Email"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
         ) : (
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username || ''}
-            onChange={handleInputChange}
-            required
-          />
-        )}
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password || ''}
-          onChange={handleInputChange}
-          required
-        />
-        {!isLogin && (
-          <input
-            type="password"
-            name="password2"
-            placeholder="Confirm Password"
-            value={formData.password2 || ''}
-            onChange={handleInputChange}
-            required
-          />
-        )}
-      </>
-    );
-
-    const studentFields = (
-      <>
-        {!isLogin ? (
-          <>
+          <div className="form-group">
             <input
               type="text"
               name="username"
@@ -216,66 +190,99 @@ const LoginPage = () => {
               onChange={handleInputChange}
               required
             />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="student_id"
-              placeholder="Student ID"
-              value={formData.student_id || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="department"
-              placeholder="Department"
-              value={formData.department || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="number"
-              name="year"
-              placeholder="Year"
-              value={formData.year || ''}
-              onChange={handleInputChange}
-              required
-            />
-          </>
-        ) : (
-          <input
-            type="email"
-            name="username"
-            placeholder="Email"
-            value={formData.username || ''}
-            onChange={handleInputChange}
-            required
-          />
+          </div>
         )}
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password || ''}
-          onChange={handleInputChange}
-          required
-        />
-        {!isLogin && (
+        <div className="form-group">
           <input
             type="password"
-            name="password2"
-            placeholder="Confirm Password"
-            value={formData.password2 || ''}
+            name="password"
+            placeholder="Password"
+            value={formData.password || ''}
             onChange={handleInputChange}
             required
           />
+        </div>
+        {!isLogin && (
+          <div className="form-group">
+            <input
+              type="password"
+              name="password2"
+              placeholder="Confirm Password"
+              value={formData.password2 || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        )}
+      </>
+    );
+
+    const studentFields = (
+      <>
+        {!isLogin ? (
+          <>
+            <div className="form-group">
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                name="student_id"
+                placeholder="Student ID"
+                value={formData.student_id || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                name="department"
+                placeholder="Department"
+                value={formData.department || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="number"
+                name="year"
+                placeholder="Year"
+                value={formData.year || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+          </>
+        ) : (
+          <div className="form-group">
+            <input
+              type="email"
+              name="username"
+              placeholder="Email"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
         )}
       </>
     );
@@ -284,33 +291,38 @@ const LoginPage = () => {
       <>
         {!isLogin && (
           <>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="department"
-              placeholder="Department"
-              value={formData.department || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="designation"
-              placeholder="Designation"
-              value={formData.designation || ''}
-              onChange={handleInputChange}
-              required
-            />
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                name="department"
+                placeholder="Department"
+                value={formData.department || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                name="designation"
+                placeholder="Designation"
+                value={formData.designation || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </>
         )}
-        {commonFields}
       </>
     );
 
@@ -318,44 +330,76 @@ const LoginPage = () => {
       <>
         {!isLogin && (
           <>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email || ''}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="position"
-              placeholder="Position"
-              value={formData.position || ''}
-              onChange={handleInputChange}
-              required
-            />
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="text"
+                name="position"
+                placeholder="Position"
+                value={formData.position || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </>
         )}
-        {commonFields}
       </>
     );
 
     return (
       <form className="auth-form" onSubmit={handleSubmit}>
-        {activeTab === 'student' && studentFields}
-        {activeTab === 'teacher' && teacherFields}
+        {activeTab === 'student' && isLogin && commonFields}
+        {activeTab === 'student' && !isLogin && studentFields}
+        {activeTab === 'teacher' && commonFields}
         {activeTab === 'management' && managementFields}
-        {error && <div className="error-message">{error}</div>}
+        
         <button type="submit" className="submit-button">
           {isLogin ? 'Login' : 'Register'}
         </button>
+        
+        {isLogin && (
+          <div className="forgot-password">
+            <a href="#">Forgot password?</a>
+          </div>
+        )}
       </form>
     );
   };
 
+  // Render function with animated background elements
   return (
     <div className="login-container">
+      {/* Background Animation Elements */}
+      <div className="login-background">
+        <div className="login-grid-lines"></div>
+        <div className="login-particles">
+          <div className="login-particle"></div>
+          <div className="login-particle"></div>
+          <div className="login-particle"></div>
+          <div className="login-particle"></div>
+        </div>
+        <div className="login-animated-shape login-shape-1"></div>
+        <div className="login-animated-shape login-shape-2"></div>
+      </div>
+
       <div className="login-box">
+        <div className="login-box-glow"></div>
+        
+        <h1 className="login-title">
+          <span>Intern</span>Hub
+        </h1>
+        
+        {error && <div className="error-message">{error}</div>}
+        
         <div className="tabs">
           <button
             className={`tab ${activeTab === 'student' ? 'active' : ''}`}
@@ -376,7 +420,7 @@ const LoginPage = () => {
             Management
           </button>
         </div>
-
+        
         <div className="auth-toggle">
           <button
             className={`toggle-button ${isLogin ? 'active' : ''}`}
@@ -391,8 +435,18 @@ const LoginPage = () => {
             Register
           </button>
         </div>
-
+        
         {renderForm()}
+        
+        <div className="or-divider">
+          <span>OR</span>
+        </div>
+        
+        <div className="social-login">
+          <button className="social-button">G</button>
+          <button className="social-button">f</button>
+          <button className="social-button">in</button>
+        </div>
       </div>
     </div>
   );
