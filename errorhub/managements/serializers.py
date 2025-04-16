@@ -4,6 +4,8 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Management, Internship, InternshipDetail
+from students.models import Student, InternshipApplication, MentorAssignment
+from teachers.models import Teacher
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -101,4 +103,54 @@ class InternshipSerializer(serializers.ModelSerializer):
             else:
                 InternshipDetail.objects.create(internship=instance, **details_data)
         
-        return instance 
+        return instance
+
+class ManagementStudentProfileSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email')
+    username = serializers.CharField(source='user.username')
+    
+    class Meta:
+        model = Student
+        fields = [
+            'student_id', 'department', 'year', 'username', 
+            'full_name', 'roll_no', 'email', 'mobile_no',
+            'dept_of_study', 'resume', 'linkedin_url', 'profile_pic'
+        ]
+
+class TeacherProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+    
+    class Meta:
+        model = Teacher
+        fields = ['id', 'username', 'email']
+
+class MentorAssignmentSerializer(serializers.ModelSerializer):
+    student_details = ManagementStudentProfileSerializer(source='student', read_only=True)
+    student_id = serializers.CharField(write_only=True)
+    teacher_details = TeacherProfileSerializer(source='teacher', read_only=True)
+    teacher_id = serializers.PrimaryKeyRelatedField(
+        queryset=Teacher.objects.all(),
+        source='teacher',
+        write_only=True
+    )
+    
+    class Meta:
+        model = MentorAssignment
+        fields = [
+            'id', 'student_details', 'student_id', 'teacher_details', 'teacher_id',
+            'assigned_by', 'assigned_at', 'notes'
+        ]
+        read_only_fields = ['assigned_by', 'assigned_at']
+    
+    def create(self, validated_data):
+        student_id = validated_data.pop('student_id')
+        try:
+            student = Student.objects.get(student_id=student_id)
+        except Student.DoesNotExist:
+            raise serializers.ValidationError({"student_id": f"Student with ID {student_id} not found"})
+        
+        management = self.context['request'].user.management_profile
+        validated_data['student'] = student
+        validated_data['assigned_by'] = management
+        return super().create(validated_data) 

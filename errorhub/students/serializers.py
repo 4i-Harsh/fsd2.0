@@ -51,14 +51,24 @@ class StudentLoginSerializer(TokenObtainPairSerializer):
         return data
 
 class StudentProfileSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
     class Meta:
         model = Student
         fields = [
             'student_id', 'department', 'year',
-            'full_name', 'roll_no', 'email', 'mobile_no',
-            'dept_of_study', 'resume', 'linkedin_url', 'profile_pic'
+            'full_name', 'roll_no', 'mobile_no', 'dept_of_study',
+            'resume', 'linkedin_url', 'profile_pic', 'user'
         ]
         read_only_fields = ('student_id', 'department', 'year')
+
+    def get_user(self, obj):
+        if obj.user:
+            return {
+                'id': obj.user.id,
+                'email': obj.user.email
+            }
+        return None
 
 class InternshipDetailSerializer(serializers.ModelSerializer):
     class Meta:

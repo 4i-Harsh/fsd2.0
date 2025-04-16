@@ -40,3 +40,13 @@ class InternshipApplication(models.Model):
     
     def __str__(self):
         return f"{self.student.student_id} - {self.internship.title}"
+
+class MentorAssignment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='mentor_assignments')
+    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE, related_name='mentor_assignments')
+    assigned_by = models.ForeignKey('managements.Management', on_delete=models.CASCADE, related_name='mentor_assignments')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.student.student_id} - {self.teacher.user.username}"
