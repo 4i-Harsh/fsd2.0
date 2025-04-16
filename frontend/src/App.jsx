@@ -5,9 +5,13 @@ import LoginPage from './pages/LoginPage';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import PrivateRoute from './components/PrivateRoute';
+import TeacherLogin from './components/TeacherLogin';
+import TeacherProfile from './components/TeacherProfile';
+import PendingVerification from './components/PendingVerification';
+import TeacherDashboard from './components/TeacherDashboard';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
@@ -29,10 +33,35 @@ function App() {
             </PrivateRoute>
           } 
         />
+        <Route path="/teacher/login" element={<TeacherLogin />} />
+        <Route 
+          path="/teacher/profile" 
+          element={
+            <PrivateRoute>
+              <TeacherProfile />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/teacher/pending-verification" 
+          element={
+            <PrivateRoute>
+              <PendingVerification />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/teacher/dashboard" 
+          element={
+            <PrivateRoute>
+              <TeacherDashboard />
+            </PrivateRoute>
+          } 
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

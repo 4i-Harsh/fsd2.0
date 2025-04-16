@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import TeacherRegistrationSerializer, TeacherLoginSerializer, TeacherProfileSerializer
-from .models import Teacher, TeacherProfile
+from .models import Teacher, TeacherProfile, TeacherProfileVerification
 
 # Create your views here.
 
@@ -28,7 +28,31 @@ class TeacherLoginView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            response_data = serializer.validated_data
+            user = response_data.pop('user')  # Remove user object from response
+            
+            # Get teacher profile and verification status
+            try:
+                teacher = Teacher.objects.get(user=user)
+                has_profile = hasattr(teacher, 'profile')
+                if has_profile:
+                    verification = TeacherProfileVerification.objects.get(profile=teacher.profile)
+                    response_data['profile_status'] = {
+                        'has_profile': True,
+                        'verification_status': verification.status
+                    }
+                else:
+                    response_data['profile_status'] = {
+                        'has_profile': False,
+                        'verification_status': None
+                    }
+            except (Teacher.DoesNotExist, TeacherProfileVerification.DoesNotExist):
+                response_data['profile_status'] = {
+                    'has_profile': False,
+                    'verification_status': None
+                }
+            
+            return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TeacherProfileCreateView(generics.CreateAPIView):
@@ -48,13 +72,21 @@ class TeacherProfileCreateView(generics.CreateAPIView):
         
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        profile = self.perform_create(serializer)
+        
+        # Create verification request
+        TeacherProfileVerification.objects.create(
+            profile=profile,
+            status='pending'
+        )
+        
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         teacher = Teacher.objects.get(user=self.request.user)
-        serializer.save(teacher=teacher)
+        profile = serializer.save(teacher=teacher)
+        return profile
 
 class TeacherProfileDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = TeacherProfileSerializer
