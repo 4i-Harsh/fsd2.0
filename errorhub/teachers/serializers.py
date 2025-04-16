@@ -37,15 +37,38 @@ class TeacherLoginSerializer(serializers.Serializer):
             user = User.objects.filter(username=username).first()
             
             if user and user.check_password(password):
-                if not hasattr(user, 'teacher_profile'):
+                try:
+                    teacher = Teacher.objects.get(user=user)
+                except Teacher.DoesNotExist:
                     raise serializers.ValidationError("User is not a teacher")
                 
                 refresh = RefreshToken.for_user(user)
-                return {
+                response_data = {
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
-                    'username': user.username
+                    'username': user.username,
+                    'user': user,
+                    'profile_status': {
+                        'has_profile': False,
+                        'verification_status': None
+                    }
                 }
+
+                # Check profile and verification status
+                if hasattr(teacher, 'profile'):
+                    try:
+                        verification = teacher.profile.verification
+                        response_data['profile_status'] = {
+                            'has_profile': True,
+                            'verification_status': verification.status
+                        }
+                    except TeacherProfileVerification.DoesNotExist:
+                        response_data['profile_status'] = {
+                            'has_profile': True,
+                            'verification_status': None
+                        }
+
+                return response_data
             else:
                 raise serializers.ValidationError("Unable to log in with provided credentials")
         else:
@@ -84,10 +107,8 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
         return value.strip('"')  # Remove any escaped quotes
 
     def create(self, validated_data):
-        teacher = self.context['request'].user.teacher_profile
-        profile = TeacherProfile.objects.create(teacher=teacher, **validated_data)
-        # Create verification record
-        TeacherProfileVerification.objects.create(profile=profile)
+        # Create profile with validated data (including teacher from view)
+        profile = TeacherProfile.objects.create(**validated_data)
         return profile
 
 class TeacherProfileVerificationSerializer(serializers.ModelSerializer):

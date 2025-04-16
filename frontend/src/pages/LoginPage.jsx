@@ -48,26 +48,46 @@ const LoginPage = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify({
-            username: formData.username, // This will be email for students
+            username: formData.username,
             password: formData.password,
           }),
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.detail || data.error || 'Login failed');
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Login failed');
+          } else {
+            throw new Error('Server error occurred');
+          }
         }
 
+        const data = await response.json();
+
         // Store the tokens in localStorage
-        localStorage.setItem('access', data.access);
+        localStorage.setItem('token', data.access);
         localStorage.setItem('refresh', data.refresh);
+        localStorage.setItem('userType', activeTab);
         
-        // Navigate based on user type
-        if (activeTab === 'student') {
+        // Navigate based on user type and status
+        if (activeTab === 'teacher') {
+          if (!data.profile_status.has_profile) {
+            navigate('/teacher/profile');
+          } else if (data.profile_status.verification_status === 'pending') {
+            navigate('/teacher/pending-verification');
+          } else if (data.profile_status.verification_status === 'approved') {
+            navigate('/teacher/dashboard');
+          } else {
+            setError('Your profile has been rejected. Please contact management.');
+          }
+        } else if (activeTab === 'student') {
           navigate('/student-dashboard');
+        } else if (activeTab === 'management') {
+          navigate('/management-dashboard');
         }
         return;
       }
