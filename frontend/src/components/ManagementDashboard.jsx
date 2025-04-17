@@ -20,10 +20,12 @@ import {
   VerifiedUser as VerifiedUserIcon,
   Dashboard as DashboardIcon,
   ExitToApp as LogoutIcon,
-  School as SchoolIcon
+  School as SchoolIcon,
+  Work as WorkIcon
 } from '@mui/icons-material';
 import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
+import InternshipPost from './InternshipPost';
 
 const drawerWidth = 240;
 
@@ -57,6 +59,11 @@ const ManagementDashboard = () => {
       text: 'Teachers',
       icon: <SchoolIcon />,
       path: '/management/dashboard/teachers'
+    },
+    {
+      text: 'Post Internship',
+      icon: <WorkIcon />,
+      path: '/management/dashboard/post-internship'
     }
   ];
 
@@ -211,6 +218,7 @@ const ManagementDashboard = () => {
           <Route path="/" element={<DashboardHome />} />
           <Route path="/verifications" element={<ManagementVerificationList />} />
           <Route path="/verifications/:id" element={<ManagementVerificationDetail />} />
+          <Route path="/post-internship" element={<InternshipPost />} />
         </Routes>
       </Box>
     </Box>

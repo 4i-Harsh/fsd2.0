@@ -352,10 +352,40 @@ const LoginPage = () => {
           <>
             <div className="form-group">
               <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
                 type="email"
                 name="email"
                 placeholder="Email"
                 value={formData.email || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                name="password2"
+                placeholder="Confirm Password"
+                value={formData.password2 || ''}
                 onChange={handleInputChange}
                 required
               />
@@ -368,6 +398,32 @@ const LoginPage = () => {
                 value={formData.position || ''}
                 onChange={handleInputChange}
                 required
+              />
+            </div>
+          </>
+        )}
+        {isLogin && (
+          <>
+            <div className="form-group">
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username || ''}
+                onChange={handleInputChange}
+                required
+                className="login-input"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password || ''}
+                onChange={handleInputChange}
+                required
+                className="login-input"
               />
             </div>
           </>
