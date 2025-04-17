@@ -146,6 +146,10 @@ const StudentProfile = () => {
 
   return (
     <div className="profile-container">
+      {/* Animated background elements */}
+      <div className="animated-shape shape-1"></div>
+      <div className="animated-shape shape-2"></div>
+      
       <div className="profile-card">
         <h1>Complete Your Profile</h1>
         {error && <div className="error-message">{error}</div>}
@@ -206,16 +210,6 @@ const StudentProfile = () => {
           </div>
 
           <div className="form-group">
-            <label>Resume</label>
-            <input
-              type="file"
-              name="resume"
-              onChange={handleChange}
-              accept=".pdf,.doc,.docx"
-            />
-          </div>
-
-          <div className="form-group">
             <label>LinkedIn URL</label>
             <input
               type="url"
@@ -223,6 +217,16 @@ const StudentProfile = () => {
               value={formData.linkedin_url || ''}
               onChange={handleChange}
               placeholder="https://linkedin.com/in/your-profile"
+            />
+          </div>
+
+          <div className="form-group full-width">
+            <label>Resume</label>
+            <input
+              type="file"
+              name="resume"
+              onChange={handleChange}
+              accept=".pdf,.doc,.docx"
             />
           </div>
 
