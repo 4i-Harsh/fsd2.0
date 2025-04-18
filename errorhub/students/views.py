@@ -53,10 +53,26 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         instance = self.get_object()
+        
+        # Log the received data for debugging
+        print("Received data for update:", request.data)
+        
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            # Save student profile data
+            student = serializer.save()
+            
+            # Check if email should be updated in the User model as well
+            if 'email' in request.data and request.data['email']:
+                user = instance.user
+                user.email = request.data['email']
+                user.save()
+                print(f"Updated user email to: {user.email}")
+            
             return Response(serializer.data)
+        
+        # Log validation errors
+        print("Validation errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class InternshipListView(generics.ListAPIView):

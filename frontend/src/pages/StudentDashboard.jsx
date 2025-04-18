@@ -7,11 +7,15 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const token = localStorage.getItem('access');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
         const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -20,21 +24,28 @@ const StudentDashboard = () => {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            // Token might be expired, redirect to login
+            localStorage.removeItem('token');
+            navigate('/login');
+            return;
+          }
           throw new Error('Failed to fetch student data');
         }
 
         const data = await response.json();
         setStudentData(data);
+        setError('');
       } catch (error) {
         console.error('Error fetching student data:', error);
-        setError('Failed to load student data');
+        setError('Failed to load student data: ' + error.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStudentData();
-  }, [token]);
+  }, [token, navigate]);
 
   const handleEditProfile = () => {
     navigate('/student-profile');

@@ -567,4 +567,16 @@
   .auth-form input {
     min-width: unset;
   }
+}
+
+.form-helper-text {
+  margin-bottom: 15px;
+  color: #999;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 0 10px;
+}
+
+.form-helper-text small {
+  opacity: 0.9;
 } 

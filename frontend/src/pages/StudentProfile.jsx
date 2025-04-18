@@ -15,9 +15,12 @@ const StudentProfile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const token = localStorage.getItem('access');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
+    // Flag to prevent state updates if component unmounts
+    let isMounted = true;
+    
     const fetchProfile = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
@@ -35,15 +38,21 @@ const StudentProfile = () => {
         }
 
         const data = await response.json();
-        setFormData(prevData => ({
-          ...prevData,
-          ...data
-        }));
+        if (isMounted) {
+          setFormData(prevData => ({
+            ...prevData,
+            ...data
+          }));
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
-        setError('Failed to load profile data');
+        if (isMounted) {
+          setError('Failed to load profile data');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -51,8 +60,17 @@ const StudentProfile = () => {
       fetchProfile();
     } else {
       setLoading(false);
+      setError('You are not logged in. Please log in first.');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     }
-  }, [token]);
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [token, navigate]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -87,15 +105,27 @@ const StudentProfile = () => {
         'linkedin_url'
       ];
 
+      // Debug: Log all form data values before sending
+      console.log("Form data before sending:", formData);
+
       updatableFields.forEach(field => {
-        if (formData[field]) {
+        if (formData[field] !== undefined) {
           formDataToSend.append(field, formData[field]);
+          // Debug: Log each field as it's added
+          console.log(`Adding field ${field}:`, formData[field]);
         }
       });
 
       // Handle resume file separately
       if (formData.resume instanceof File) {
         formDataToSend.append('resume', formData.resume);
+        console.log("Adding resume file:", formData.resume.name);
+      }
+
+      // Debug: Log final FormData entries (not directly visible but useful for debugging)
+      console.log("FormData entries:");
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
       }
 
       const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
@@ -108,7 +138,10 @@ const StudentProfile = () => {
         body: formDataToSend
       });
 
+      // Debug: Log the raw response
+      console.log("Response status:", response.status);
       const responseData = await response.json();
+      console.log("Response data:", responseData);
 
       if (!response.ok) {
         // Handle validation errors
@@ -123,16 +156,12 @@ const StudentProfile = () => {
 
       console.log('Profile updated successfully:', responseData);
       
-      // Set loading to false before navigation
+      // Set loading to false 
       setLoading(false);
       
-      // Force a small delay to ensure state updates are processed
-      setTimeout(() => {
-        // Navigate to dashboard with replace to prevent going back to profile
-        navigate('/student-dashboard', { replace: true });
-      }, 100);
+      // Direct navigation without alert
+      window.location.href = '/student-dashboard';
       
-      return; // Exit early after successful update
     } catch (error) {
       console.error('Error updating profile:', error);
       setError(error.message || 'Failed to update profile');

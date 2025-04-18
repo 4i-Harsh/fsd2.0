@@ -2,78 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProfileComplete, setIsProfileComplete] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const token = localStorage.getItem('token');
   const userType = localStorage.getItem('userType');
 
-  useEffect(() => {
-    const checkProfileCompletion = async () => {
-      try {
-        if (userType === 'student') {
-          const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
-          
-          if (!response.ok) {
-            throw new Error('Failed to fetch profile');
-          }
-          
-          const data = await response.json();
-          
-          // Check if all required fields are filled
-          const requiredFields = ['full_name', 'roll_no', 'email', 'mobile_no', 'dept_of_study'];
-          const isComplete = requiredFields.every(field => data[field]);
-          setIsProfileComplete(isComplete);
-        } else if (userType === 'teacher') {
-          // For teachers, we don't need to check profile completion here
-          // The TeacherLogin component handles the profile/verification flow
-          setIsProfileComplete(true);
-        }
-      } catch (error) {
-        console.error('Error checking profile:', error);
-        setIsProfileComplete(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (token) {
-      checkProfileCompletion();
-    } else {
-      setIsLoading(false);
-    }
-  }, [token, location.pathname, userType]);
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
-
+  // Simplified approach - only check if token exists
   if (!token) {
     // Redirect to appropriate login page based on user type
     const loginPath = userType === 'teacher' ? '/teacher/login' : '/login';
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
-  // Handle student profile completion check
-  if (userType === 'student') {
-    // If we're already on the profile page, render it regardless of completion status
-    if (location.pathname === '/student-profile') {
-      return children;
-    }
-
-    // Only redirect to profile page if profile is incomplete and we're not already there
-    if (!isProfileComplete) {
-      return <Navigate to="/student-profile" state={{ from: location }} replace />;
-    }
-  }
-
+  // For all authenticated users, just render the children
   return children;
 };
 

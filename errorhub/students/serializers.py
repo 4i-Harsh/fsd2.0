@@ -52,12 +52,13 @@ class StudentLoginSerializer(TokenObtainPairSerializer):
 
 class StudentProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    email = serializers.EmailField(required=False)
 
     class Meta:
         model = Student
         fields = [
             'student_id', 'department', 'year',
-            'full_name', 'roll_no', 'mobile_no', 'dept_of_study',
+            'full_name', 'roll_no', 'email', 'mobile_no', 'dept_of_study',
             'resume', 'linkedin_url', 'profile_pic', 'user'
         ]
         read_only_fields = ('student_id', 'department', 'year')

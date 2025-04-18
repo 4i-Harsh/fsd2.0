@@ -44,16 +44,31 @@ const LoginPage = () => {
             break;
         }
 
+        // Different payload structure based on user type
+        if (activeTab === 'student') {
+          payload = {
+            username: formData.username, // Student uses email for login
+            password: formData.password,
+          };
+        } else if (activeTab === 'teacher') {
+          payload = {
+            username: formData.username,
+            password: formData.password,
+          };
+        } else {
+          payload = {
+            username: formData.username,
+            password: formData.password,
+          };
+        }
+
         const response = await fetch(loginEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({
-            username: formData.username,
-            password: formData.password,
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -96,7 +111,7 @@ const LoginPage = () => {
       switch (activeTab) {
         case 'student':
           endpoint = 'http://127.0.0.1:8000/api/students/register/';
-          // Make sure all fields are filled and properly formatted
+          // Updated payload to match StudentRegistrationSerializer
           if (!formData.email || !formData.username || !formData.password || 
               !formData.password2 || !formData.student_id || 
               !formData.department || !formData.year) {
@@ -122,6 +137,17 @@ const LoginPage = () => {
           break;
         case 'teacher':
           endpoint = 'http://127.0.0.1:8000/api/teachers/register/';
+          // Updated payload to match TeacherRegistrationSerializer
+          if (!formData.username || !formData.password || !formData.password2) {
+            throw new Error('All fields are required');
+          }
+          
+          // Validate password match
+          if (formData.password !== formData.password2) {
+            throw new Error('Passwords do not match');
+          }
+          
+          // The teacher registration only needs username, password, and password2
           payload = {
             username: formData.username,
             password: formData.password,
@@ -187,20 +213,42 @@ const LoginPage = () => {
   };
 
   const renderForm = () => {
-    const commonFields = (
-      <>
-        {activeTab === 'student' && isLogin ? (
+    // Student Login Form
+    if (activeTab === 'student' && isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
               type="email"
-              name="username"  // Keep name as username for API compatibility
+              name="username"  // Using username for the API but presenting as email
               placeholder="Email"
               value={formData.username || ''}
               onChange={handleInputChange}
               required
             />
           </div>
-        ) : (
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit" className="submit-button">Login</button>
+          <div className="forgot-password">
+            <a href="#">Forgot password?</a>
+          </div>
+        </form>
+      );
+    }
+    
+    // Student Registration Form
+    if (activeTab === 'student' && !isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
               type="text"
@@ -211,18 +259,56 @@ const LoginPage = () => {
               required
             />
           </div>
-        )}
-        <div className="form-group">
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password || ''}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        {!isLogin && (
+          <div className="form-group">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              name="student_id"
+              placeholder="Student ID"
+              value={formData.student_id || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              name="department"
+              placeholder="Department"
+              value={formData.department || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="number"
+              name="year"
+              placeholder="Year"
+              value={formData.year || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
           <div className="form-group">
             <input
               type="password"
@@ -233,222 +319,169 @@ const LoginPage = () => {
               required
             />
           </div>
-        )}
-      </>
-    );
-
-    const studentFields = (
-      <>
-        {!isLogin ? (
-          <>
-            <div className="form-group">
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData.username || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="student_id"
-                placeholder="Student ID"
-                value={formData.student_id || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="department"
-                placeholder="Department"
-                value={formData.department || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="number"
-                name="year"
-                placeholder="Year"
-                value={formData.year || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </>
-        ) : (
+          <button type="submit" className="submit-button">Register</button>
+        </form>
+      );
+    }
+    
+    // Teacher Login Form
+    if (activeTab === 'teacher' && isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
-              type="email"
+              type="text"
               name="username"
-              placeholder="Email"
+              placeholder="Username"
               value={formData.username || ''}
               onChange={handleInputChange}
               required
             />
           </div>
-        )}
-      </>
-    );
-
-    const teacherFields = (
-      <>
-        {!isLogin && (
-          <>
-            <div className="form-group">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="department"
-                placeholder="Department"
-                value={formData.department || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="designation"
-                placeholder="Designation"
-                value={formData.designation || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </>
-        )}
-      </>
-    );
-
-    const managementFields = (
-      <>
-        {!isLogin && (
-          <>
-            <div className="form-group">
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData.username || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="password"
-                name="password2"
-                placeholder="Confirm Password"
-                value={formData.password2 || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="text"
-                name="position"
-                placeholder="Position"
-                value={formData.position || ''}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </>
-        )}
-        {isLogin && (
-          <>
-            <div className="form-group">
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData.username || ''}
-                onChange={handleInputChange}
-                required
-                className="login-input"
-              />
-            </div>
-            <div className="form-group">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password || ''}
-                onChange={handleInputChange}
-                required
-                className="login-input"
-              />
-            </div>
-          </>
-        )}
-      </>
-    );
-
-    return (
-      <form className="auth-form" onSubmit={handleSubmit}>
-        {activeTab === 'student' && isLogin && commonFields}
-        {activeTab === 'student' && !isLogin && studentFields}
-        {activeTab === 'teacher' && commonFields}
-        {activeTab === 'management' && managementFields}
-        
-        <button type="submit" className="submit-button">
-          {isLogin ? 'Login' : 'Register'}
-        </button>
-        
-        {isLogin && (
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit" className="submit-button">Login</button>
           <div className="forgot-password">
             <a href="#">Forgot password?</a>
           </div>
-        )}
-      </form>
-    );
+        </form>
+      );
+    }
+    
+    // Teacher Registration Form
+    if (activeTab === 'teacher' && !isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password2"
+              placeholder="Confirm Password"
+              value={formData.password2 || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-helper-text">
+            <small>
+              You will be able to complete your profile with additional details after registration.
+            </small>
+          </div>
+          <button type="submit" className="submit-button">Register</button>
+        </form>
+      );
+    }
+    
+    // Management Login Form
+    if (activeTab === 'management' && isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+              className="login-input"
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+              className="login-input"
+            />
+          </div>
+          <button type="submit" className="submit-button">Login</button>
+          <div className="forgot-password">
+            <a href="#">Forgot password?</a>
+          </div>
+        </form>
+      );
+    }
+    
+    // Management Registration Form
+    if (activeTab === 'management' && !isLogin) {
+      return (
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password2"
+              placeholder="Confirm Password"
+              value={formData.password2 || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              name="position"
+              placeholder="Position"
+              value={formData.position || ''}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit" className="submit-button">Register</button>
+        </form>
+      );
+    }
   };
 
   // Render function with animated background elements
