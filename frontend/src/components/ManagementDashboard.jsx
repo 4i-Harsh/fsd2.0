@@ -35,6 +35,7 @@ import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
 import InternshipPost from './InternshipPost';
 import MentorAssignment from './MentorAssignment';
+import TeachersList from './TeachersList';
 
 const drawerWidth = 280;
 
@@ -609,6 +610,7 @@ const ManagementDashboard = () => {
           <Route path="/verifications/:id" element={<ManagementVerificationDetail />} />
           <Route path="/post-internship" element={<InternshipPost />} />
           <Route path="/mentor-assignments" element={<MentorAssignment />} />
+          <Route path="/teachers" element={<TeachersList />} />
         </Routes>
       </Box>
     </Box>
