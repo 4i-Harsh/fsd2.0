@@ -28,11 +28,13 @@ import {
   School as SchoolIcon,
   Work as WorkIcon,
   Notifications as NotificationsIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Assignment as AssignmentIcon
 } from '@mui/icons-material';
 import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
 import InternshipPost from './InternshipPost';
+import MentorAssignment from './MentorAssignment';
 
 const drawerWidth = 280;
 
@@ -81,6 +83,11 @@ const ManagementDashboard = () => {
       text: 'Post Internship',
       icon: <WorkIcon />,
       path: '/management/dashboard/post-internship'
+    },
+    {
+      text: 'Assign Mentors',
+      icon: <AssignmentIcon />,
+      path: '/management/dashboard/mentor-assignments'
     }
   ];
 
@@ -434,6 +441,26 @@ const ManagementDashboard = () => {
             >
               View Teachers
             </Button>
+            <Button
+              variant="outlined"
+              startIcon={<AssignmentIcon />}
+              onClick={() => navigate('/management/dashboard/mentor-assignments')}
+              sx={{
+                color: '#f97316',
+                borderColor: 'rgba(249, 115, 22, 0.5)',
+                px: 3, 
+                py: 1.2,
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#f97316',
+                  bgcolor: 'rgba(249, 115, 22, 0.04)'
+                }
+              }}
+            >
+              Assign Mentors
+            </Button>
           </Box>
         </Paper>
       </Box>
@@ -581,6 +608,7 @@ const ManagementDashboard = () => {
           <Route path="/verifications" element={<ManagementVerificationList />} />
           <Route path="/verifications/:id" element={<ManagementVerificationDetail />} />
           <Route path="/post-internship" element={<InternshipPost />} />
+          <Route path="/mentor-assignments" element={<MentorAssignment />} />
         </Routes>
       </Box>
     </Box>
