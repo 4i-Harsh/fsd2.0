@@ -11,6 +11,7 @@ import PendingVerification from './components/PendingVerification';
 import TeacherDashboard from './components/TeacherDashboard';
 import ManagementLogin from './components/ManagementLogin';
 import ManagementDashboard from './components/ManagementDashboard';
+import ApplyInternshipForm from './components/ApplyInternshipForm';
 import './App.css';
 
 const App = () => {
@@ -37,6 +38,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <StudentDashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/apply-internship/:internshipId" 
+          element={
+            <PrivateRoute>
+              <ApplyInternshipForm />
             </PrivateRoute>
           } 
         />
