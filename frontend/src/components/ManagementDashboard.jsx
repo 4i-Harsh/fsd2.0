@@ -29,13 +29,15 @@ import {
   Work as WorkIcon,
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
-  Assignment as AssignmentIcon
+  Assignment as AssignmentIcon,
+  People as PeopleIcon
 } from '@mui/icons-material';
 import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
 import InternshipPost from './InternshipPost';
 import MentorAssignment from './MentorAssignment';
 import TeachersList from './TeachersList';
+import ApplicationsList from './ApplicationsList';
 
 const drawerWidth = 280;
 
@@ -89,6 +91,11 @@ const ManagementDashboard = () => {
       text: 'Assign Mentors',
       icon: <AssignmentIcon />,
       path: '/management/dashboard/mentor-assignments'
+    },
+    {
+      text: 'View Applications',
+      icon: <PeopleIcon />,
+      path: '/management/dashboard/applications'
     }
   ];
 
@@ -571,7 +578,8 @@ const ManagementDashboard = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: 'none'
+              bgcolor: '#121212',
+              border: 'none'
             },
           }}
         >
@@ -584,8 +592,9 @@ const ManagementDashboard = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: 'none',
-              background: 'transparent'
+              bgcolor: '#121212',
+              border: 'none',
+              borderRight: '1px solid rgba(255, 255, 255, 0.05)'
             },
           }}
           open
@@ -611,6 +620,7 @@ const ManagementDashboard = () => {
           <Route path="/post-internship" element={<InternshipPost />} />
           <Route path="/mentor-assignments" element={<MentorAssignment />} />
           <Route path="/teachers" element={<TeachersList />} />
+          <Route path="/applications" element={<ApplicationsList />} />
         </Routes>
       </Box>
     </Box>
