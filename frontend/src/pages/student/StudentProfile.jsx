@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiUser, FiMail, FiPhone, FiBook, FiLinkedin, FiFileText, FiSave, FiArrowLeft } from 'react-icons/fi';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -21,11 +23,7 @@ const pulse = keyframes`
   100% { opacity: 0.8; transform: scale(1.1); }
 `;
 
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`;
-
-const Container = styled.div`
+const Container = styled(motion.div)`
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -40,10 +38,14 @@ const Container = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     height: 100%;
-    background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.3), transparent 70%);
+    background: 
+      linear-gradient(45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(-45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
     z-index: 0;
+    pointer-events: none;
   }
 
   &::after {
@@ -51,133 +53,228 @@ const Container = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     height: 100%;
-    background-image: 
-      linear-gradient(rgba(249, 115, 22, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(249, 115, 22, 0.07) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: 1;
+    background: radial-gradient(circle at 50% 50%, 
+      rgba(255, 107, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0) 70%);
     pointer-events: none;
+    z-index: 1;
   }
 `;
 
-const ProfileCard = styled.div`
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  padding: 2rem;
+const ProfileCard = styled(motion.div)`
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 2.5rem;
   width: 100%;
   max-width: 800px;
   position: relative;
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  animation: ${fadeIn} 0.5s ease-in-out;
-  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 107, 0, 0.1);
+  backdrop-filter: blur(10px);
   overflow-y: auto;
   max-height: 90vh;
   z-index: 10;
-`;
-
-const Title = styled.h1`
-  color: white;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 25px;
-  overflow: hidden;
 
   &::before {
     content: '';
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(249, 115, 22, 0.3);
-    border-radius: 3px;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.3), transparent);
   }
+`;
+
+const Title = styled(motion.h1)`
+  color: white;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 1rem;
 
   &::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
     height: 4px;
     background: linear-gradient(90deg, 
-      transparent 0%,
-      #f97316 20%, 
-      #f97316 50%,
-      #ea580c 80%,
-      transparent 100%
+      transparent,
+      #ff6b00 20%, 
+      #ff6b00 80%,
+      transparent
     );
-    border-radius: 3px;
-    animation: ${shimmer} 3s infinite;
-    background-size: 200% 100%;
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.5);
+    border-radius: 2px;
   }
 `;
 
-const Form = styled.form`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.2rem;
-  position: relative;
-  width: ${props => props.$fullWidth ? '100%' : 'calc(50% - 0.5rem)'};
+const Form = styled(motion.form)`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
 
   @media (max-width: 768px) {
-    width: 100%;
+    grid-template-columns: 1fr;
   }
+`;
+
+const FormGroup = styled(motion.div)`
+  position: relative;
+  grid-column: ${props => props.$fullWidth ? '1 / -1' : 'span 1'};
 
   label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     color: #d1d5db;
-    font-weight: 600;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    svg {
+      color: #ff6b00;
+    }
   }
 
   input {
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid rgba(249, 115, 22, 0.2);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    background-color: rgba(0, 0, 0, 0.4);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    background: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    border-radius: 12px;
     color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 
     &:focus {
       outline: none;
-      border-color: #f97316;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+      border-color: #ff6b00;
+      box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.2);
+      background: rgba(30, 30, 30, 0.8);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3);
     }
   }
 
   input[type="file"] {
-    padding: 0.7rem;
-    border: 1px dashed #f97316;
-    background-color: rgba(249, 115, 22, 0.05);
+    padding: 0.8rem;
+    border: 2px dashed rgba(255, 107, 0, 0.3);
+    background: rgba(255, 107, 0, 0.05);
     cursor: pointer;
+    font-size: 0.9rem;
 
     &:hover {
-      background-color: rgba(249, 115, 22, 0.1);
+      background: rgba(255, 107, 0, 0.1);
+      border-color: rgba(255, 107, 0, 0.4);
+    }
+
+    &::file-selector-button {
+      background: #ff6b00;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      color: white;
+      margin-right: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #ea580c;
+      }
     }
   }
 `;
 
-const AnimatedShape = styled.div`
+const ButtonGroup = styled(motion.div)`
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const Button = styled(motion.button)`
+  flex: 1;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+
+  ${props => props.$primary ? `
+    background: linear-gradient(45deg, #ff6b00, #ff8533);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+      transform: translateY(-2px);
+    }
+  ` : `
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 107, 0, 0.3);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+  `}
+`;
+
+const ErrorMessage = styled(motion.div)`
+  background: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+`;
+
+const LoadingContainer = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: black;
+  color: #ff6b00;
+  font-size: 1.2rem;
+  gap: 1rem;
+
+  svg {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const AnimatedShape = styled(motion.div)`
   position: absolute;
-  background: linear-gradient(45deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0));
+  background: linear-gradient(45deg, rgba(255, 107, 0, 0.15), rgba(255, 107, 0, 0));
   border-radius: 50%;
   filter: blur(40px);
   z-index: 1;
@@ -197,85 +294,6 @@ const Shape2 = styled(AnimatedShape)`
   bottom: -80px;
   left: -80px;
   animation: ${pulse} 20s infinite alternate-reverse ease-in-out;
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 0.9rem;
-  background: linear-gradient(to right, #f97316, #ea580c);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
-  position: relative;
-  overflow: hidden;
-  margin-top: 0.5rem;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.5s;
-  }
-
-  &:hover {
-    background: linear-gradient(to right, #ea580c, #c2410c);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(249, 115, 22, 0.4);
-
-    &::before {
-      left: 100%;
-    }
-  }
-
-  &:disabled {
-    background: #4b5563;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  border-left: 3px solid #e74c3c;
-  font-weight: 500;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-size: 1.2rem;
-  color: white;
-  position: relative;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.8);
-
-  &::after {
-    content: '';
-    width: 30px;
-    height: 30px;
-    border: 3px solid transparent;
-    border-top-color: #f97316;
-    border-radius: 50%;
-    animation: ${spin} 1s ease infinite;
-    margin-left: 10px;
-  }
 `;
 
 const StudentProfile = () => {
@@ -369,24 +387,11 @@ const StudentProfile = () => {
     try {
       const formDataToSend = new FormData();
       
-      const updatableFields = [
-        'full_name',
-        'roll_no',
-        'email',
-        'mobile_no',
-        'dept_of_study',
-        'linkedin_url'
-      ];
-
-      updatableFields.forEach(field => {
-        if (formData[field] !== undefined) {
-          formDataToSend.append(field, formData[field]);
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null) {
+          formDataToSend.append(key, formData[key]);
         }
       });
-
-      if (formData.resume instanceof File) {
-        formDataToSend.append('resume', formData.resume);
-      }
 
       const response = await fetch('http://127.0.0.1:8000/api/students/profile/', {
         method: 'PUT',
@@ -400,95 +405,168 @@ const StudentProfile = () => {
       const responseData = await response.json();
 
       if (!response.ok) {
-        if (response.status === 400) {
-          const errorMessage = Object.entries(responseData)
-            .map(([key, value]) => `${key}: ${value.join(', ')}`)
-            .join('\n');
-          throw new Error(errorMessage || 'Validation failed');
-        }
         throw new Error(responseData.detail || 'Failed to update profile');
       }
 
-      setLoading(false);
-      window.location.href = '/student-dashboard';
+      navigate('/student-dashboard');
       
     } catch (error) {
       console.error('Error updating profile:', error);
       setError(error.message || 'Failed to update profile');
+    } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <LoadingContainer>Loading...</LoadingContainer>;
+    return (
+      <LoadingContainer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <FiUser />
+        Loading profile...
+      </LoadingContainer>
+    );
   }
 
   return (
-    <Container>
+    <Container
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <Shape1 />
       <Shape2 />
       
-      <ProfileCard>
-        <Title>Complete Your Profile</Title>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+      <ProfileCard
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Title
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          Complete Your Profile
+        </Title>
+
+        {error && (
+          <ErrorMessage
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            {error}
+          </ErrorMessage>
+        )}
+
         <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <label>Full Name *</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <label>
+              <FiUser />
+              Full Name
+            </label>
             <input
               type="text"
               name="full_name"
               value={formData.full_name || ''}
               onChange={handleChange}
               required
+              placeholder="Enter your full name"
             />
           </FormGroup>
 
-          <FormGroup>
-            <label>Roll Number *</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <label>
+              <FiFileText />
+              Roll Number
+            </label>
             <input
               type="text"
               name="roll_no"
               value={formData.roll_no || ''}
               onChange={handleChange}
               required
+              placeholder="Enter your roll number"
             />
           </FormGroup>
 
-          <FormGroup>
-            <label>Email *</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <label>
+              <FiMail />
+              Email
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email || ''}
               onChange={handleChange}
               required
+              placeholder="Enter your email"
             />
           </FormGroup>
 
-          <FormGroup>
-            <label>Mobile Number *</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <label>
+              <FiPhone />
+              Mobile Number
+            </label>
             <input
               type="tel"
               name="mobile_no"
               value={formData.mobile_no || ''}
               onChange={handleChange}
               required
+              placeholder="Enter your mobile number"
             />
           </FormGroup>
 
-          <FormGroup>
-            <label>Department of Study *</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <label>
+              <FiBook />
+              Department of Study
+            </label>
             <input
               type="text"
               name="dept_of_study"
               value={formData.dept_of_study || ''}
               onChange={handleChange}
               required
+              placeholder="Enter your department"
             />
           </FormGroup>
 
-          <FormGroup>
-            <label>LinkedIn URL</label>
+          <FormGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <label>
+              <FiLinkedin />
+              LinkedIn URL
+            </label>
             <input
               type="url"
               name="linkedin_url"
@@ -498,8 +576,16 @@ const StudentProfile = () => {
             />
           </FormGroup>
 
-          <FormGroup $fullWidth>
-            <label>Resume</label>
+          <FormGroup
+            $fullWidth
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <label>
+              <FiFileText />
+              Resume
+            </label>
             <input
               type="file"
               name="resume"
@@ -508,9 +594,30 @@ const StudentProfile = () => {
             />
           </FormGroup>
 
-          <SubmitButton type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Profile'}
-          </SubmitButton>
+          <ButtonGroup
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+          >
+            <Button
+              type="button"
+              onClick={() => navigate('/student-dashboard')}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <FiArrowLeft />
+              Back to Dashboard
+            </Button>
+            <Button
+              type="submit"
+              $primary
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <FiSave />
+              Save Profile
+            </Button>
+          </ButtonGroup>
         </Form>
       </ProfileCard>
     </Container>
