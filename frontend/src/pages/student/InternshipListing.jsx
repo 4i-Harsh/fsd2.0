@@ -1,6 +1,163 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/InternshipListing.css';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  padding: 20px;
+  width: 100%;
+  margin-top: 20px;
+`;
+
+const Title = styled.h2`
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+`;
+
+const LoadingDiv = styled.div`
+  text-align: center;
+  padding: 20px;
+  font-size: 1.1rem;
+`;
+
+const ErrorDiv = styled.div`
+  color: #e74c3c;
+  background-color: #fadbd8;
+  border-radius: 5px;
+  padding: 15px;
+`;
+
+const NoInternships = styled.div`
+  text-align: center;
+  padding: 30px;
+  border: 1px dashed #bdc3c7;
+  border-radius: 5px;
+  margin-top: 20px;
+  color: #7f8c8d;
+`;
+
+const InternshipsList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const InternshipCard = styled.div`
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const CardHeader = styled.div`
+  padding: 15px;
+  background-color: #3498db;
+  color: white;
+
+  h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1.3;
+  }
+`;
+
+const CompanyName = styled.span`
+  display: block;
+  margin-top: 5px;
+  font-size: 1rem;
+  opacity: 0.9;
+`;
+
+const CardDetails = styled.div`
+  padding: 15px;
+  border-bottom: 1px solid #ecf0f1;
+`;
+
+const DetailGroup = styled.div`
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+`;
+
+const DetailLabel = styled.span`
+  font-weight: 600;
+  margin-right: 5px;
+  min-width: 80px;
+  color: #7f8c8d;
+`;
+
+const Description = styled.div`
+  padding: 15px;
+  color: #34495e;
+  flex: 1;
+
+  p {
+    margin: 0;
+    line-height: 1.5;
+  }
+`;
+
+const AdditionalDetails = styled.div`
+  padding: 0 15px;
+  margin-bottom: 15px;
+`;
+
+const DetailSection = styled.div`
+  margin-bottom: 10px;
+
+  h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+
+  p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+`;
+
+const CardActions = styled.div`
+  padding: 15px;
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+`;
+
+const ApplyButton = styled.button`
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #27ae60;
+  }
+`;
 
 const InternshipListing = () => {
   const [internships, setInternships] = useState([]);
@@ -51,92 +208,89 @@ const InternshipListing = () => {
   };
 
   if (loading) {
-    return <div className="internships-loading">Loading internships...</div>;
+    return <LoadingDiv>Loading internships...</LoadingDiv>;
   }
 
   if (error) {
-    return <div className="internships-error">{error}</div>;
+    return <ErrorDiv>{error}</ErrorDiv>;
   }
 
   return (
-    <div className="internships-container">
-      <h2>Available Internships</h2>
+    <Container>
+      <Title>Available Internships</Title>
       
       {internships.length === 0 ? (
-        <div className="no-internships">
+        <NoInternships>
           <p>No internships available at the moment.</p>
-        </div>
+        </NoInternships>
       ) : (
-        <div className="internships-list">
+        <InternshipsList>
           {internships.map((internship) => (
-            <div key={internship.id} className="internship-card">
-              <div className="internship-header">
+            <InternshipCard key={internship.id}>
+              <CardHeader>
                 <h3>{internship.title}</h3>
-                <span className="company-name">{internship.company_name}</span>
-              </div>
+                <CompanyName>{internship.company_name}</CompanyName>
+              </CardHeader>
               
-              <div className="internship-details">
-                <div className="detail-group">
-                  <span className="detail-label">Location:</span>
+              <CardDetails>
+                <DetailGroup>
+                  <DetailLabel>Location:</DetailLabel>
                   <span>{internship.location || 'Not specified'}</span>
-                </div>
+                </DetailGroup>
                 
-                <div className="detail-group">
-                  <span className="detail-label">Duration:</span>
+                <DetailGroup>
+                  <DetailLabel>Duration:</DetailLabel>
                   <span>
                     {new Date(internship.start_date).toLocaleDateString()} - 
                     {new Date(internship.end_date).toLocaleDateString()}
                   </span>
-                </div>
+                </DetailGroup>
                 
-                <div className="detail-group">
-                  <span className="detail-label">Apply by:</span>
+                <DetailGroup>
+                  <DetailLabel>Apply by:</DetailLabel>
                   <span>{new Date(internship.application_deadline).toLocaleDateString()}</span>
-                </div>
-              </div>
+                </DetailGroup>
+              </CardDetails>
               
-              <div className="internship-description">
+              <Description>
                 <p>{internship.description}</p>
-              </div>
+              </Description>
               
               {internship.details && (
-                <div className="internship-additional-details">
+                <AdditionalDetails>
                   {internship.details.requirements && (
-                    <div className="detail-section">
+                    <DetailSection>
                       <h4>Requirements</h4>
                       <p>{internship.details.requirements}</p>
-                    </div>
+                    </DetailSection>
                   )}
                   
                   {internship.details.skills_required && (
-                    <div className="detail-section">
+                    <DetailSection>
                       <h4>Skills Required</h4>
                       <p>{internship.details.skills_required}</p>
-                    </div>
+                    </DetailSection>
                   )}
                   
                   {internship.details.stipend && (
-                    <div className="detail-section">
+                    <DetailSection>
                       <h4>Stipend</h4>
                       <p>{internship.details.stipend}</p>
-                    </div>
+                    </DetailSection>
                   )}
-                </div>
+                </AdditionalDetails>
               )}
               
-              <div className="internship-actions">
-                <button 
-                  className="apply-button"
-                  onClick={() => handleApply(internship.id)}
-                >
+              <CardActions>
+                <ApplyButton onClick={() => handleApply(internship.id)}>
                   Apply Now
-                </button>
-              </div>
-            </div>
+                </ApplyButton>
+              </CardActions>
+            </InternshipCard>
           ))}
-        </div>
+        </InternshipsList>
       )}
-    </div>
+    </Container>
   );
 };
 
