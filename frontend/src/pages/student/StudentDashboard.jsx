@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InternshipListing from '../components/InternshipListing';
-import ApplicationHistory from '../components/ApplicationHistory';
-import '../styles/StudentDashboard.css';
+import InternshipListing from './InternshipListing';
+import ApplicationHistory from './ApplicationHistory';
+import '../../styles/StudentDashboard.css';
 
 const StudentDashboard = () => {
   const [studentData, setStudentData] = useState(null);

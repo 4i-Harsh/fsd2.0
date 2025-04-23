@@ -2,16 +2,16 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import StudentDashboard from './pages/StudentDashboard';
-import StudentProfile from './pages/StudentProfile';
+import StudentDashboard from './pages/student/StudentDashboard';
+import StudentProfile from './pages/student/StudentProfile';
 import PrivateRoute from './components/PrivateRoute';
-import TeacherLogin from './components/TeacherLogin';
-import TeacherProfile from './components/TeacherProfile';
-import PendingVerification from './components/PendingVerification';
-import TeacherDashboard from './components/TeacherDashboard';
-import ManagementLogin from './components/ManagementLogin';
-import ManagementDashboard from './components/ManagementDashboard';
-import ApplyInternshipForm from './components/ApplyInternshipForm';
+import TeacherLogin from './pages/teacher/TeacherLogin';
+import TeacherProfile from './pages/teacher/TeacherProfile';
+import PendingVerification from './pages/teacher/PendingVerification';
+import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import ManagementLogin from './pages/manager/ManagementLogin';
+import ManagementDashboard from './pages/manager/ManagementDashboard';
+import ApplyInternshipForm from './pages/student/ApplyInternshipForm';
 import './App.css';
 
 const App = () => {

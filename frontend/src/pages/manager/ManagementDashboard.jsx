@@ -36,7 +36,7 @@ import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
 import InternshipPost from './InternshipPost';
 import MentorAssignment from './MentorAssignment';
-import TeachersList from './TeachersList';
+import TeachersList from '../teacher/TeachersList';
 import ApplicationsList from './ApplicationsList';
 
 const drawerWidth = 280;

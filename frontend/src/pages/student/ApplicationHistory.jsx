@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/ApplicationHistory.css';
+import '../../styles/ApplicationHistory.css';
 
 const ApplicationHistory = () => {
   const [applications, setApplications] = useState([]);
