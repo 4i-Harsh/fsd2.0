@@ -9,6 +9,8 @@ import TeacherLogin from './pages/teacher/TeacherLogin';
 import TeacherProfile from './pages/teacher/TeacherProfile';
 import PendingVerification from './pages/teacher/PendingVerification';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import TeacherApplications from './pages/teacher/TeacherApplications';
+import TeacherStudents from './pages/teacher/TeacherStudents';
 import ManagementLogin from './pages/manager/ManagementLogin';
 import ManagementDashboard from './pages/manager/ManagementDashboard';
 import ApplyInternshipForm from './pages/student/ApplyInternshipForm';
@@ -72,6 +74,22 @@ const App = () => {
           element={
             <PrivateRoute>
               <TeacherDashboard />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/teacher/applications" 
+          element={
+            <PrivateRoute>
+              <TeacherApplications />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/teacher/students" 
+          element={
+            <PrivateRoute>
+              <TeacherStudents />
             </PrivateRoute>
           } 
         />

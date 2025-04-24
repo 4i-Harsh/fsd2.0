@@ -1,186 +1,286 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiBriefcase, FiMapPin, FiCalendar, FiClock, FiFileText, FiExternalLink, FiCheck, FiClock as FiPending, FiX } from 'react-icons/fi';
 
-const Container = styled.div`
-  padding: 20px;
+const Container = styled(motion.div)`
+  padding: 2rem;
   width: 100%;
-`;
+  background: #000;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 
-const Title = styled.h2`
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
-`;
-
-const LoadingDiv = styled.div`
-  text-align: center;
-  padding: 20px;
-  font-size: 1.1rem;
-`;
-
-const ErrorDiv = styled.div`
-  color: #e74c3c;
-  background-color: #fadbd8;
-  border-radius: 5px;
-  padding: 15px;
-  text-align: center;
-`;
-
-const NoApplications = styled.div`
-  text-align: center;
-  padding: 30px;
-  border: 1px dashed #bdc3c7;
-  border-radius: 5px;
-  margin-top: 20px;
-  color: #7f8c8d;
-`;
-
-const BrowseButton = styled.button`
-  margin-top: 15px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #2980b9;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: 
+      linear-gradient(45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(-45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: 0;
+    pointer-events: none;
   }
 `;
 
-const ApplicationsList = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  margin-top: 20px;
+const Title = styled(motion.h2)`
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6b00, transparent);
+    border-radius: 2px;
+  }
 `;
 
-const ApplicationCard = styled.div`
-  background: #fff;
+const LoadingDiv = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: #ff6b00;
+  font-size: 1.2rem;
+  gap: 1rem;
+
+  svg {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const ErrorDiv = styled(motion.div)`
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  border-left: 4px solid #ff4444;
+  padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease;
+  margin: 1rem 0;
+`;
+
+const NoApplications = styled(motion.div)`
+  text-align: center;
+  padding: 3rem;
+  border: 2px dashed rgba(255, 107, 0, 0.3);
+  border-radius: 12px;
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.05);
+  backdrop-filter: blur(10px);
+
+  p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+  }
+`;
+
+const BrowseButton = styled(motion.button)`
+  background: linear-gradient(45deg, #ff6b00, #ff8533);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto;
 
   &:hover {
-    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+    transform: translateY(-2px);
+  }
+`;
+
+const ApplicationsList = styled(motion.div)`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+`;
+
+const ApplicationCard = styled(motion.div)`
+  background: rgba(20, 20, 20, 0.8);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 107, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.3), transparent);
   }
 `;
 
 const CardHeader = styled.div`
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, rgba(30, 25, 20, 0.9), rgba(20, 15, 10, 0.9));
+  border-bottom: 1px solid rgba(255, 107, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   h3 {
     margin: 0;
-    font-size: 1.3rem;
-    color: #2c3e50;
+    font-size: 1.4rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    svg {
+      color: #ff6b00;
+    }
   }
 `;
 
 const StatusBadge = styled.span`
-  padding: 6px 12px;
+  padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.9rem;
-  font-weight: 600;
-  background-color: ${props => {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  ${props => {
     switch (props.status.toLowerCase()) {
       case 'pending':
-        return '#f1c40f';
+        return `
+          background: rgba(241, 196, 15, 0.1);
+          color: #f1c40f;
+          border: 1px solid rgba(241, 196, 15, 0.2);
+        `;
       case 'shortlisted':
-        return '#2ecc71';
+        return `
+          background: rgba(46, 204, 113, 0.1);
+          color: #2ecc71;
+          border: 1px solid rgba(46, 204, 113, 0.2);
+        `;
       case 'rejected':
-        return '#e74c3c';
+        return `
+          background: rgba(231, 76, 60, 0.1);
+          color: #e74c3c;
+          border: 1px solid rgba(231, 76, 60, 0.2);
+        `;
       default:
-        return '#f1c40f';
+        return `
+          background: rgba(241, 196, 15, 0.1);
+          color: #f1c40f;
+          border: 1px solid rgba(241, 196, 15, 0.2);
+        `;
     }
-  }};
-  color: ${props => {
-    switch (props.status.toLowerCase()) {
-      case 'pending':
-        return '#7f6000';
-      case 'shortlisted':
-        return '#1b7943';
-      case 'rejected':
-        return '#7f2620';
-      default:
-        return '#7f6000';
-    }
-  }};
+  }}
 `;
 
 const CardDetails = styled.div`
-  padding: 15px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 107, 0, 0.1);
 `;
 
 const DetailGroup = styled.div`
-  margin-bottom: 10px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #999;
 
   &:last-child {
     margin-bottom: 0;
   }
-`;
 
-const DetailLabel = styled.span`
-  font-weight: 600;
-  margin-right: 10px;
-  min-width: 100px;
-  color: #7f8c8d;
+  svg {
+    color: #ff6b00;
+    font-size: 1.1rem;
+  }
 `;
 
 const ApplicationDescription = styled.div`
-  padding: 15px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 107, 0, 0.1);
+  background: rgba(255, 107, 0, 0.05);
 
   h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 1rem 0;
     font-size: 1.1rem;
-    color: #2c3e50;
+    color: #ff6b00;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   p {
     margin: 0;
-    color: #34495e;
-    line-height: 1.5;
+    color: #ccc;
+    line-height: 1.6;
   }
 `;
 
 const ResumeSection = styled.div`
-  padding: 15px;
+  padding: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
 
 const ResumeLabel = styled.span`
-  color: #7f8c8d;
-  font-weight: 600;
+  color: #999;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  svg {
+    color: #ff6b00;
+  }
 `;
 
-const ViewResumeButton = styled.a`
-  background-color: #3498db;
+const ViewResumeButton = styled(motion.a)`
+  background: rgba(255, 255, 255, 0.05);
   color: white;
   text-decoration: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   font-size: 0.9rem;
-  transition: background-color 0.2s;
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: #2980b9;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  svg {
+    color: #ff6b00;
   }
 `;
 
@@ -216,7 +316,6 @@ const ApplicationHistory = () => {
 
         const data = await response.json();
         
-        // Fetch internship details for each application
         const applicationsWithDetails = await Promise.all(
           data.map(async (application) => {
             try {
@@ -271,80 +370,156 @@ const ApplicationHistory = () => {
     });
   };
 
+  const getStatusIcon = (status) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return <FiPending />;
+      case 'shortlisted':
+        return <FiCheck />;
+      case 'rejected':
+        return <FiX />;
+      default:
+        return <FiPending />;
+    }
+  };
+
   if (loading) {
-    return <LoadingDiv>Loading your applications...</LoadingDiv>;
+    return (
+      <Container
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <LoadingDiv>
+          <FiBriefcase />
+          Loading your applications...
+        </LoadingDiv>
+      </Container>
+    );
   }
 
   if (error) {
-    return <ErrorDiv>{error}</ErrorDiv>;
+    return (
+      <Container>
+        <ErrorDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {error}
+        </ErrorDiv>
+      </Container>
+    );
   }
 
   return (
-    <Container>
-      <Title>My Applications</Title>
+    <Container
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <Title
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        My Applications
+      </Title>
       
       {applications.length === 0 ? (
-        <NoApplications>
+        <NoApplications
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
           <p>You haven't applied to any internships yet.</p>
-          <BrowseButton onClick={() => navigate('/student-dashboard')}>
+          <BrowseButton
+            onClick={() => navigate('/student-dashboard')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <FiBriefcase />
             Browse Available Internships
           </BrowseButton>
         </NoApplications>
       ) : (
         <ApplicationsList>
-          {applications.map((application) => (
-            <ApplicationCard key={application.id}>
-              <CardHeader>
-                <h3>{application.internshipDetails?.title || 'Internship'}</h3>
-                <StatusBadge status={application.status}>
-                  {application.status}
-                </StatusBadge>
-              </CardHeader>
-              
-              <CardDetails>
-                <DetailGroup>
-                  <DetailLabel>Company:</DetailLabel>
-                  <span>{application.internshipDetails?.company_name || 'Not specified'}</span>
-                </DetailGroup>
+          <AnimatePresence>
+            {applications.map((application, index) => (
+              <ApplicationCard
+                key={application.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { delay: index * 0.1 }
+                }}
+                whileHover={{ y: -5 }}
+              >
+                <CardHeader>
+                  <h3>
+                    <FiBriefcase />
+                    {application.internshipDetails?.title || 'Internship'}
+                  </h3>
+                  <StatusBadge status={application.status}>
+                    {getStatusIcon(application.status)}
+                    {application.status}
+                  </StatusBadge>
+                </CardHeader>
                 
-                <DetailGroup>
-                  <DetailLabel>Applied On:</DetailLabel>
-                  <span>{formatDate(application.applied_at)}</span>
-                </DetailGroup>
-                
-                <DetailGroup>
-                  <DetailLabel>Location:</DetailLabel>
-                  <span>{application.internshipDetails?.location || 'Not specified'}</span>
-                </DetailGroup>
-                
-                {application.internshipDetails && (
+                <CardDetails>
                   <DetailGroup>
-                    <DetailLabel>Duration:</DetailLabel>
-                    <span>
-                      {formatDate(application.internshipDetails.start_date)} - 
-                      {formatDate(application.internshipDetails.end_date)}
-                    </span>
+                    <FiBriefcase />
+                    <span>{application.internshipDetails?.company_name || 'Not specified'}</span>
                   </DetailGroup>
-                )}
-              </CardDetails>
-              
-              <ApplicationDescription>
-                <h4>Your Application Note:</h4>
-                <p>{application.description}</p>
-              </ApplicationDescription>
-              
-              <ResumeSection>
-                <ResumeLabel>Submitted Resume:</ResumeLabel>
-                <ViewResumeButton 
-                  href={application.resume} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  View Resume
-                </ViewResumeButton>
-              </ResumeSection>
-            </ApplicationCard>
-          ))}
+                  
+                  <DetailGroup>
+                    <FiCalendar />
+                    <span>Applied on: {formatDate(application.applied_at)}</span>
+                  </DetailGroup>
+                  
+                  <DetailGroup>
+                    <FiMapPin />
+                    <span>{application.internshipDetails?.location || 'Not specified'}</span>
+                  </DetailGroup>
+                  
+                  {application.internshipDetails && (
+                    <DetailGroup>
+                      <FiClock />
+                      <span>
+                        Duration: {formatDate(application.internshipDetails.start_date)} - 
+                        {formatDate(application.internshipDetails.end_date)}
+                      </span>
+                    </DetailGroup>
+                  )}
+                </CardDetails>
+                
+                <ApplicationDescription>
+                  <h4>
+                    <FiFileText />
+                    Your Application Note
+                  </h4>
+                  <p>{application.description}</p>
+                </ApplicationDescription>
+                
+                <ResumeSection>
+                  <ResumeLabel>
+                    <FiFileText />
+                    Submitted Resume
+                  </ResumeLabel>
+                  <ViewResumeButton 
+                    href={application.resume} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FiExternalLink />
+                    View Resume
+                  </ViewResumeButton>
+                </ResumeSection>
+              </ApplicationCard>
+            ))}
+          </AnimatePresence>
         </ApplicationsList>
       )}
     </Container>

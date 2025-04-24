@@ -1,162 +1,231 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiBriefcase, FiMapPin, FiCalendar, FiClock, FiDollarSign, FiBookmark } from 'react-icons/fi';
 
-const Container = styled.div`
-  padding: 20px;
+const Container = styled(motion.div)`
+  padding: 2rem;
   width: 100%;
-  margin-top: 20px;
-`;
+  background: #000;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 
-const Title = styled.h2`
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
-`;
-
-const LoadingDiv = styled.div`
-  text-align: center;
-  padding: 20px;
-  font-size: 1.1rem;
-`;
-
-const ErrorDiv = styled.div`
-  color: #e74c3c;
-  background-color: #fadbd8;
-  border-radius: 5px;
-  padding: 15px;
-`;
-
-const NoInternships = styled.div`
-  text-align: center;
-  padding: 30px;
-  border: 1px dashed #bdc3c7;
-  border-radius: 5px;
-  margin-top: 20px;
-  color: #7f8c8d;
-`;
-
-const InternshipsList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: 
+      linear-gradient(45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(-45deg, rgba(255, 107, 0, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: 0;
+    pointer-events: none;
   }
 `;
 
-const InternshipCard = styled.div`
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+const Title = styled(motion.h2)`
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 2rem;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6b00, transparent);
+    border-radius: 2px;
+  }
+`;
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+const LoadingDiv = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: #ff6b00;
+  font-size: 1.2rem;
+  gap: 1rem;
+
+  svg {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const ErrorDiv = styled(motion.div)`
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  border-left: 4px solid #ff4444;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+`;
+
+const NoInternships = styled(motion.div)`
+  text-align: center;
+  padding: 3rem;
+  border: 2px dashed rgba(255, 107, 0, 0.3);
+  border-radius: 12px;
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.05);
+  backdrop-filter: blur(10px);
+`;
+
+const InternshipsList = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+`;
+
+const InternshipCard = styled(motion.div)`
+  background: rgba(20, 20, 20, 0.8);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 107, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.3), transparent);
   }
 `;
 
 const CardHeader = styled.div`
-  padding: 15px;
-  background-color: #3498db;
-  color: white;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, rgba(30, 25, 20, 0.9), rgba(20, 15, 10, 0.9));
+  border-bottom: 1px solid rgba(255, 107, 0, 0.1);
 
   h3 {
     margin: 0;
     font-size: 1.4rem;
-    line-height: 1.3;
+    color: white;
+    margin-bottom: 0.5rem;
   }
 `;
 
 const CompanyName = styled.span`
-  display: block;
-  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ff6b00;
   font-size: 1rem;
-  opacity: 0.9;
+  margin-top: 0.5rem;
+
+  svg {
+    font-size: 1.2rem;
+  }
 `;
 
 const CardDetails = styled.div`
-  padding: 15px;
-  border-bottom: 1px solid #ecf0f1;
+  padding: 1.5rem;
 `;
 
 const DetailGroup = styled.div`
-  margin-bottom: 8px;
   display: flex;
-  align-items: flex-start;
-`;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #999;
 
-const DetailLabel = styled.span`
-  font-weight: 600;
-  margin-right: 5px;
-  min-width: 80px;
-  color: #7f8c8d;
+  svg {
+    color: #ff6b00;
+    font-size: 1.1rem;
+  }
 `;
 
 const Description = styled.div`
-  padding: 15px;
-  color: #34495e;
-  flex: 1;
-
+  padding: 1.5rem;
+  color: #ccc;
+  border-top: 1px solid rgba(255, 107, 0, 0.1);
+  
   p {
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 `;
 
 const AdditionalDetails = styled.div`
-  padding: 0 15px;
-  margin-bottom: 15px;
+  padding: 1.5rem;
+  background: rgba(255, 107, 0, 0.05);
 `;
 
 const DetailSection = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 
   h4 {
     font-size: 1rem;
-    color: #2c3e50;
-    margin-bottom: 5px;
+    color: #ff6b00;
+    margin-bottom: 0.5rem;
   }
 
   p {
-    margin: 0;
-    color: #7f8c8d;
+    color: #999;
     font-size: 0.9rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    margin: 0;
   }
 `;
 
 const CardActions = styled.div`
-  padding: 15px;
-  border-top: 1px solid #ecf0f1;
+  padding: 1.5rem;
   display: flex;
-  justify-content: flex-end;
-  margin-top: auto;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 107, 0, 0.1);
 `;
 
-const ApplyButton = styled.button`
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+const ActionButton = styled(motion.button)`
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
-  &:hover {
-    background-color: #27ae60;
-  }
+  ${props => props.$primary ? `
+    background: linear-gradient(45deg, #ff6b00, #ff8533);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+    }
+  ` : `
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 107, 0, 0.3);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  `}
 `;
 
 const InternshipListing = () => {
@@ -208,86 +277,148 @@ const InternshipListing = () => {
   };
 
   if (loading) {
-    return <LoadingDiv>Loading internships...</LoadingDiv>;
+    return (
+      <Container
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <LoadingDiv>
+          <FiBriefcase />
+          Loading internships...
+        </LoadingDiv>
+      </Container>
+    );
   }
 
   if (error) {
-    return <ErrorDiv>{error}</ErrorDiv>;
+    return (
+      <Container>
+        <ErrorDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {error}
+        </ErrorDiv>
+      </Container>
+    );
   }
 
   return (
-    <Container>
-      <Title>Available Internships</Title>
+    <Container
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <Title
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        Available Internships
+      </Title>
       
       {internships.length === 0 ? (
-        <NoInternships>
+        <NoInternships
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
           <p>No internships available at the moment.</p>
         </NoInternships>
       ) : (
         <InternshipsList>
-          {internships.map((internship) => (
-            <InternshipCard key={internship.id}>
-              <CardHeader>
-                <h3>{internship.title}</h3>
-                <CompanyName>{internship.company_name}</CompanyName>
-              </CardHeader>
-              
-              <CardDetails>
-                <DetailGroup>
-                  <DetailLabel>Location:</DetailLabel>
-                  <span>{internship.location || 'Not specified'}</span>
-                </DetailGroup>
+          <AnimatePresence>
+            {internships.map((internship, index) => (
+              <InternshipCard
+                key={internship.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { delay: index * 0.1 }
+                }}
+                whileHover={{ y: -5 }}
+              >
+                <CardHeader>
+                  <h3>{internship.title}</h3>
+                  <CompanyName>
+                    <FiBriefcase />
+                    {internship.company_name}
+                  </CompanyName>
+                </CardHeader>
                 
-                <DetailGroup>
-                  <DetailLabel>Duration:</DetailLabel>
-                  <span>
-                    {new Date(internship.start_date).toLocaleDateString()} - 
-                    {new Date(internship.end_date).toLocaleDateString()}
-                  </span>
-                </DetailGroup>
+                <CardDetails>
+                  <DetailGroup>
+                    <FiMapPin />
+                    <span>{internship.location || 'Remote'}</span>
+                  </DetailGroup>
+                  
+                  <DetailGroup>
+                    <FiCalendar />
+                    <span>
+                      {new Date(internship.start_date).toLocaleDateString()} - 
+                      {new Date(internship.end_date).toLocaleDateString()}
+                    </span>
+                  </DetailGroup>
+                  
+                  <DetailGroup>
+                    <FiClock />
+                    <span>Apply by: {new Date(internship.application_deadline).toLocaleDateString()}</span>
+                  </DetailGroup>
+                </CardDetails>
                 
-                <DetailGroup>
-                  <DetailLabel>Apply by:</DetailLabel>
-                  <span>{new Date(internship.application_deadline).toLocaleDateString()}</span>
-                </DetailGroup>
-              </CardDetails>
-              
-              <Description>
-                <p>{internship.description}</p>
-              </Description>
-              
-              {internship.details && (
-                <AdditionalDetails>
-                  {internship.details.requirements && (
-                    <DetailSection>
-                      <h4>Requirements</h4>
-                      <p>{internship.details.requirements}</p>
-                    </DetailSection>
-                  )}
-                  
-                  {internship.details.skills_required && (
-                    <DetailSection>
-                      <h4>Skills Required</h4>
-                      <p>{internship.details.skills_required}</p>
-                    </DetailSection>
-                  )}
-                  
-                  {internship.details.stipend && (
-                    <DetailSection>
-                      <h4>Stipend</h4>
-                      <p>{internship.details.stipend}</p>
-                    </DetailSection>
-                  )}
-                </AdditionalDetails>
-              )}
-              
-              <CardActions>
-                <ApplyButton onClick={() => handleApply(internship.id)}>
-                  Apply Now
-                </ApplyButton>
-              </CardActions>
-            </InternshipCard>
-          ))}
+                <Description>
+                  <p>{internship.description}</p>
+                </Description>
+                
+                {internship.details && (
+                  <AdditionalDetails>
+                    {internship.details.requirements && (
+                      <DetailSection>
+                        <h4>Requirements</h4>
+                        <p>{internship.details.requirements}</p>
+                      </DetailSection>
+                    )}
+                    
+                    {internship.details.skills_required && (
+                      <DetailSection>
+                        <h4>Skills Required</h4>
+                        <p>{internship.details.skills_required}</p>
+                      </DetailSection>
+                    )}
+                    
+                    {internship.details.stipend && (
+                      <DetailSection>
+                        <h4>Stipend</h4>
+                        <p>
+                          <FiDollarSign style={{ verticalAlign: 'middle' }} />
+                          {internship.details.stipend}
+                        </p>
+                      </DetailSection>
+                    )}
+                  </AdditionalDetails>
+                )}
+                
+                <CardActions>
+                  <ActionButton
+                    $primary
+                    onClick={() => handleApply(internship.id)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Apply Now
+                  </ActionButton>
+                  <ActionButton
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <FiBookmark /> Save
+                  </ActionButton>
+                </CardActions>
+              </InternshipCard>
+            ))}
+          </AnimatePresence>
         </InternshipsList>
       )}
     </Container>
