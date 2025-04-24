@@ -44,23 +44,10 @@ const LoginPage = () => {
             break;
         }
 
-        // Different payload structure based on user type
-        if (activeTab === 'student') {
-          payload = {
-            username: formData.username, // Student uses email for login
-            password: formData.password,
-          };
-        } else if (activeTab === 'teacher') {
-          payload = {
-            username: formData.username,
-            password: formData.password,
-          };
-        } else {
-          payload = {
-            username: formData.username,
-            password: formData.password,
-          };
-        }
+        payload = {
+          username: formData.username,
+          password: formData.password,
+        };
 
         const response = await fetch(loginEndpoint, {
           method: 'POST',
@@ -82,6 +69,7 @@ const LoginPage = () => {
         }
 
         const data = await response.json();
+        console.log("Login response:", data); // Add this for debugging
 
         // Store the tokens in localStorage
         localStorage.setItem('token', data.access);
@@ -89,7 +77,15 @@ const LoginPage = () => {
         localStorage.setItem('userType', activeTab);
         
         // Navigate based on user type and status
-        if (activeTab === 'teacher') {
+        if (activeTab === 'student') {
+          console.log("Student login successful, navigating..."); // Add this for debugging
+          if (!data.has_profile) {
+            navigate('/student-profile');
+          } else {
+            navigate('/student-dashboard');
+          }
+          return;
+        } else if (activeTab === 'teacher') {
           if (!data.profile_status.has_profile) {
             navigate('/teacher/profile');
           } else if (data.profile_status.verification_status === 'pending') {
@@ -99,22 +95,18 @@ const LoginPage = () => {
           } else {
             setError('Your profile has been rejected. Please contact management.');
           }
-        } else if (activeTab === 'student') {
-          navigate('/student-dashboard');
+          return; // Add explicit return
         } else if (activeTab === 'management') {
           navigate('/management/dashboard');
+          return; // Add explicit return
         }
-        return;
       }
 
       // Registration logic
       switch (activeTab) {
         case 'student':
           endpoint = 'http://127.0.0.1:8000/api/students/register/';
-          // Updated payload to match StudentRegistrationSerializer
-          if (!formData.email || !formData.username || !formData.password || 
-              !formData.password2 || !formData.student_id || 
-              !formData.department || !formData.year) {
+          if (!formData.username || !formData.password || !formData.password2) {
             throw new Error('All fields are required');
           }
           
@@ -124,14 +116,8 @@ const LoginPage = () => {
           }
 
           payload = {
-            user: {
-              username: formData.username,
-              email: formData.email,
-              password: formData.password
-            },
-            student_id: formData.student_id,
-            department: formData.department,
-            year: parseInt(formData.year, 10),
+            username: formData.username,
+            password: formData.password,
             password2: formData.password2
           };
           break;
@@ -219,9 +205,9 @@ const LoginPage = () => {
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <input
-              type="email"
-              name="username"  // Using username for the API but presenting as email
-              placeholder="Email"
+              type="text"
+              name="username"
+              placeholder="Username"
               value={formData.username || ''}
               onChange={handleInputChange}
               required
@@ -238,6 +224,11 @@ const LoginPage = () => {
             />
           </div>
           <button type="submit" className="submit-button">Login</button>
+          <div className="form-helper-text">
+            <small>
+              You will need to complete your profile after logging in.
+            </small>
+          </div>
           <div className="forgot-password">
             <a href="#">Forgot password?</a>
           </div>
@@ -261,46 +252,6 @@ const LoginPage = () => {
           </div>
           <div className="form-group">
             <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email || ''}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              name="student_id"
-              placeholder="Student ID"
-              value={formData.student_id || ''}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              name="department"
-              placeholder="Department"
-              value={formData.department || ''}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="number"
-              name="year"
-              placeholder="Year"
-              value={formData.year || ''}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
               type="password"
               name="password"
               placeholder="Password"
@@ -318,6 +269,11 @@ const LoginPage = () => {
               onChange={handleInputChange}
               required
             />
+          </div>
+          <div className="form-helper-text">
+            <small>
+              You will be able to complete your profile with additional details after registration.
+            </small>
           </div>
           <button type="submit" className="submit-button">Register</button>
         </form>

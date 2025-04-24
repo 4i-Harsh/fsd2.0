@@ -5,9 +5,9 @@ from django.db.models import Count
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile', null=True, blank=True)
-    student_id = models.CharField(max_length=20, unique=True)
-    department = models.CharField(max_length=100)
-    year = models.IntegerField()
+    student_id = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    department = models.CharField(max_length=100, null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     
     # Profile fields
     full_name = models.CharField(max_length=100, null=True, blank=True)
