@@ -13,7 +13,12 @@ from .views import (
     StudentProfileView,
     TeacherListView,
     MentorAssignmentCreateView,
-    MentorAssignmentListView
+    MentorAssignmentListView,
+    ApplicationListView,
+    ApplicationDetailView,
+    ApplicationStatusUpdateView,
+    BulkApplicationStatusUpdateView,
+    ApplicationStatsView
 )
 
 urlpatterns = [
@@ -31,4 +36,12 @@ urlpatterns = [
     path('verifications/', AllVerificationsListView.as_view(), name='all-verifications'),
     path('verifications/pending/', PendingVerificationsListView.as_view(), name='pending-verifications'),
     path('verifications/<int:pk>/', TeacherProfileVerificationView.as_view(), name='verification-detail'),
+    path('internships/<int:internship_id>/applications/detail/', ApplicationListView.as_view(), name='application-list-detail'),
+    path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
+    path('applications/<int:pk>/update-status/', ApplicationStatusUpdateView.as_view(), name='application-status-update'),
+    path('applications/bulk-update/', BulkApplicationStatusUpdateView.as_view(), name='application-bulk-update'),
+    
+    # Application stats endpoints
+    path('applications/stats/', ApplicationStatsView.as_view(), name='application-stats'),
+    path('internships/<int:internship_id>/stats/', ApplicationStatsView.as_view(), name='internship-application-stats'),
 ] 

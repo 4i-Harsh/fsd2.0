@@ -69,11 +69,21 @@ class InternshipDetailSerializer(serializers.ModelSerializer):
 
 class InternshipSerializer(serializers.ModelSerializer):
     details = InternshipDetailSerializer(required=False)
+    application_stats = serializers.SerializerMethodField()
     
     class Meta:
         model = Internship
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at', 'updated_at')
+    
+    def get_application_stats(self, obj):
+        return {
+            'total': obj.total_applications,
+            'pending': obj.pending_applications_count,
+            'shortlisted': obj.shortlisted_applications_count,
+            'rejected': obj.rejected_applications_count,
+            'percentages': obj.get_applications_status_percentages()
+        }
     
     def create(self, validated_data):
         details_data = validated_data.pop('details', None)
@@ -153,4 +163,54 @@ class MentorAssignmentSerializer(serializers.ModelSerializer):
         management = self.context['request'].user.management_profile
         validated_data['student'] = student
         validated_data['assigned_by'] = management
-        return super().create(validated_data) 
+        return super().create(validated_data)
+
+class ApplicationStatusUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating the status of an internship application.
+    """
+    status = serializers.ChoiceField(choices=InternshipApplication.STATUS_CHOICES)
+    notes = serializers.CharField(required=False, allow_blank=True)
+    
+    class Meta:
+        model = InternshipApplication
+        fields = ['status', 'notes']
+        
+    def validate_status(self, value):
+        valid_statuses = [status for status, _ in InternshipApplication.STATUS_CHOICES]
+        if value not in valid_statuses:
+            raise serializers.ValidationError(
+                f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
+            )
+        return value
+        
+    def update(self, instance, validated_data):
+        instance.status = validated_data.get('status', instance.status)
+        
+        # Add notes as a comment if provided
+        notes = validated_data.get('notes')
+        if notes and hasattr(instance, 'comments'):
+            instance.comments = notes
+            
+        instance.save()
+        return instance
+
+class ApplicationDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer for detailed view of an application, including student information.
+    """
+    student = ManagementStudentProfileSerializer(read_only=True)
+    internship = InternshipSerializer(read_only=True)
+    resume_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = InternshipApplication
+        fields = ['id', 'student', 'internship', 'description', 
+                  'status', 'applied_at', 'resume_url']
+    
+    def get_resume_url(self, obj):
+        if obj.resume:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.resume.url)
+        return None 

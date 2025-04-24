@@ -30,7 +30,8 @@ import {
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
   Assignment as AssignmentIcon,
-  People as PeopleIcon
+  People as PeopleIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon
 } from '@mui/icons-material';
 import ManagementVerificationList from './ManagementVerificationList';
 import ManagementVerificationDetail from './ManagementVerificationDetail';
@@ -38,6 +39,7 @@ import InternshipPost from './InternshipPost';
 import MentorAssignment from './MentorAssignment';
 import TeachersList from '../teacher/TeachersList';
 import ApplicationsList from './ApplicationsList';
+import ApplicationStatusManager from './ApplicationStatusManager';
 
 const drawerWidth = 280;
 
@@ -96,6 +98,11 @@ const ManagementDashboard = () => {
       text: 'View Applications',
       icon: <PeopleIcon />,
       path: '/management/dashboard/applications'
+    },
+    {
+      text: 'Manage Application Status',
+      icon: <CheckCircleOutlineIcon />,
+      path: '/management/dashboard/application-status'
     }
   ];
 
@@ -469,6 +476,26 @@ const ManagementDashboard = () => {
             >
               Assign Mentors
             </Button>
+            <Button
+              variant="outlined"
+              startIcon={<CheckCircleOutlineIcon />}
+              onClick={() => navigate('/management/dashboard/application-status')}
+              sx={{
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                px: 3, 
+                py: 1.2,
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: 'white',
+                  bgcolor: 'rgba(255, 255, 255, 0.04)'
+                }
+              }}
+            >
+              Manage Applications
+            </Button>
           </Box>
         </Paper>
       </Box>
@@ -621,6 +648,7 @@ const ManagementDashboard = () => {
           <Route path="/mentor-assignments" element={<MentorAssignment />} />
           <Route path="/teachers" element={<TeachersList />} />
           <Route path="/applications" element={<ApplicationsList />} />
+          <Route path="/application-status" element={<ApplicationStatusManager />} />
         </Routes>
       </Box>
     </Box>
