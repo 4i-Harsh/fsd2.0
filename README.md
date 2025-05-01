@@ -79,3 +79,6 @@ python manage.py runserver
 2. **Teachers**: Can manage student applications, view student profiles, and create educational content
 3. **Management**: Oversees the entire platform, approves teacher accounts, and manages system settings
 4. **Admin**: Oversees all the statistics.
+
+
+Demo Video : https://drive.google.com/file/d/129NsIUsJ2PVBgisXM33utyZmB_LjTzMh/view?usp=drive_link
